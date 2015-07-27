@@ -23,7 +23,7 @@
     "tests"
   ],
   "devDependencies" : {
-    "jasmine": "~2.3.4"
+    "jasmine": ">2.0.0"
   },
   "dependencies": {
     "da99.applet.js": "da99/applet.js#>2.0.0",
