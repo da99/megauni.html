@@ -1,0 +1,27 @@
+{
+  "name": "megauni.js",
+  "version": "0.0.1",
+  "description": "Client for megauni.com on the browser.",
+  "main": "megauni.js",
+  "bin": {
+    "megauni.js": "megauni.js"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "bower": "^1.4.1",
+    "jshint": "^2.8.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github:da99/megauni.js.git"
+  },
+  "keywords": [
+    "megauni"
+  ],
+  "author": "da99",
+  "license": "MIT"
+}

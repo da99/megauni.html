@@ -42,7 +42,7 @@ case "$action" in
 
 
     echo "=== Watching:"
-    inotifywait --quiet --monitor --event close_write  ./  | while read CHANGE
+    inotifywait --quiet --monitor --event close_write  "./" "bin/megauni.js"  | while read CHANGE
     do
       dir=$(echo "$CHANGE" | cut -d' ' -f 1)
       op=$(echo "$CHANGE" | cut -d' ' -f 2)
@@ -53,7 +53,7 @@ case "$action" in
 
       if [[ "$file" =~ ".js" ]]; then
         echo -n "=== Running jshint: "
-        ( bin/bin jshint $path && echo -e "${green}Passed${reset_color}" ) || js_failed=""
+        ( $0 jshint $path && echo -e "${green}Passed${reset_color}" ) || js_failed=""
 
         echo ""
       fi
