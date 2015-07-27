@@ -26,8 +26,8 @@
     "jasmine": "~2.3.4"
   },
   "dependencies": {
-    "da99.applet.js": "da99/applet.js#~1.0.0",
-    "jquery": "~2.1.4",
-    "lodash": "~3.10.0"
+    "da99.applet.js": "da99/applet.js#>2.0.0",
+    "jquery": ">2.0.0",
+    "lodash": ">3.0.0"
   }
 }
