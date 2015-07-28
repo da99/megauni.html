@@ -8,72 +8,77 @@ var MegaUni = {
 
 $(function () {
 
-  var process_node = MegaUni.run_node = function (script) {
+  MegaUni.run = function (msg) {
 
-    _.each(MegaUni.stack, function (o) {
-      if (o.name !== 'attr')
-        return;
-      _.each($(script).find('*[' + o.attr + ']'), o.func);
+    // === Compile everything before proceding:
+    Applet.run(MegaUni.compile_script);
+
+    if (!msg)
+      return MegaUni;
+
+    var i = 0, f;
+    while (MegaUni.stack[i]) {
+      f = MegaUni.stack[i];
+      msg.this_func = f;
+      f(msg);
+      ++i;
+    }
+
+    return MegaUni;
+  }; // === func
+
+  MegaUni.compile_script = function (script, all) {
+
+    MegaUni.run({
+      name      : 'compile script',
+      script    : script,
+      all       : all
     });
-
 
     ($(script).contents()).insertBefore($(script));
   }; // === process_node
 
-  MegaUni.run = function (func) {
-
-    // === Compile all scripts:
-    Applet.run(process_node);
-
-    if (_.isPlainObject(func))
-      _.each(MegaUni.stack, function (f) {
-        if (!f.name)
-          f(func);
-      });
-
-    return MegaUni;
-
-  }; // === func
-
-  var insert = function (pos, name, func) {
-    if (_.isFunction(name))
-      MegaUni.stack[pos](name);
-    else {
-      MegaUni.stack[pos]({name: 'attr', attr: name, func: func});
-    }
-
+  MegaUni.unshift = function (func) {
+    MegaUni.stack.unshift(func);
     return MegaUni;
   };
 
-   MegaUni.unshift = function (name, func) {
-    return insert('unshift', name, func);
+  MegaUni.push = function (func) {
+    MegaUni.stack.push(func);
+    return MegaUni;
   };
 
-  var push = MegaUni.push = function (name, func) {
-    return insert('push', name, func);
-  };
+  MegaUni.push( // === show_if =================================
+    function (o) {
+      if (o.name !== 'compile script' && o.name !== 'compile dom')
+        return;
 
-  push(
-    'show_if',
-    function (raw) {
-      var node = $(raw);
-      var val  = node.attr('show_if');
-      node.removeAttr('show_if');
-      node.hide();
+      var selector = '*[show_if]';
+      _.each(
+        $(o.script || o.dom).find(selector).addBack(selector),
+        function (raw) {
+          var node = $(raw);
+          var id   = Applet.id(node);
+          var val  = Applet.remove_attr(node, 'show_if');
 
-      var id = Applet.id(node);
-      MegaUni.push(function (data) {
-        var ans = Applet.is_true(data, val);
-        if (ans === undefined)
-          return;
+          node.hide();
 
-        if ( ans )
-          $('#' + id).show();
-        else
-          $('#' + id).hide();
-      });
+          MegaUni.push(
+            function (data) {
+              var ans = Applet.is_true(data, val);
+              if (ans === undefined)
+                return;
+
+              if ( ans )
+                $('#' + id).show();
+              else
+                $('#' + id).hide();
+            }
+          ); // === push
+        } // === function raw
+      ); // === _.each
     } // === func
-  ); // === show_if
+  ); // === show_if ===================================
 
 }); // === scope
 
