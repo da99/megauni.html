@@ -1,6 +1,6 @@
 "use strict";
 /* jshint undef: true, unused: true */
-/* global Applet  */
+/* global Applet, Hogan  */
 
 var MegaUni = {
   stack : []
@@ -67,8 +67,8 @@ $(function () {
 
   MegaUni.push(
     function (o) {
-      if (o.name === 'compile scripts') {
-        Applet.run(
+      if (o.name === 'before compile scripts') {
+        Applet.each_raw_script(
           function (script, all) {
             o.script = script;
             o.all    = all;
@@ -81,6 +81,46 @@ $(function () {
       }
     }
   );
+
+  MegaUni.templates = [];
+  MegaUni.push(
+    function (o) {
+      if (o.name === 'reset') {
+        MegaUni.templates = [];
+        return;
+      }
+
+      if (o.name !== 'compile scripts')
+        return;
+
+      var selector  = '*[template]';
+      MegaUni.templates = MegaUni.templates.concat(
+        _.map(
+          Applet.top_descendents(o.script, selector),
+          function (t) {
+            var script = $('<script type="text/applet_placeholder"></script>');
+            var script_id = Applet.id(script);
+            var meta = {
+              name      : Applet.remove_attr(t, 'template'),
+              html      : t.prop('outerHTML'),
+              mustache  : Hogan.compile(t.prop('outerHTML')),
+              script_id : script_id
+            };
+
+            MegaUni.push(function (o) {
+              if (o.name !== 'data' || !_.isPlainObject(o.data[meta.name]))
+                return;
+              var html = meta.mustache.render(o.data[meta.name]);
+              $(html).insertBefore($('#' + meta.script_id));
+            });
+
+            t.replaceWith(script);
+            return meta;
+          }
+        ) // === each
+      );
+    }
+  ); // === template ==============================
 
   MegaUni.push( // === show_if =================================
     function (o) {
@@ -118,6 +158,14 @@ $(function () {
     } // === func
   ); // === show_if ===================================
 
+  MegaUni.core = _.clone(MegaUni.stack);
+  MegaUni.push(
+    function (o) {
+      if (o.name !== 'reset')
+        return;
+      MegaUni.stack = MegaUni.core;
+    }
+  );
 }); // === scope
 
 
