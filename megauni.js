@@ -16,13 +16,28 @@ $(function () {
     if (!msg)
       return MegaUni;
 
-    var i = 0, f;
-    while (MegaUni.stack[i]) {
-      f = MegaUni.stack[i];
-      msg.this_func = f;
-      f(msg);
-      ++i;
-    }
+    if (!_.has(msg, 'name'))
+      msg = {name: 'data', data: msg};
+
+    _.each(
+      [
+        'before before ' + msg.name,
+        'before ' + msg.name,
+        msg.name,
+        'after ' + msg.name,
+        'after after ' + msg.name
+      ],
+      function (name) {
+        msg.name = Applet.standard_name(name);
+        var i = 0, f;
+        while (MegaUni.stack[i]) {
+          f = MegaUni.stack[i];
+          msg.this_func = f;
+          f(msg);
+          ++i;
+        }
+      }
+    ); // === _.each name
 
     return MegaUni;
   }; // === func
