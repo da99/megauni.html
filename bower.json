@@ -1,6 +1,6 @@
 {
   "name": "megauni.js",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "authors": [
     "da99 <i-hate-spam-1234567@mailinator.com>"
   ],
@@ -22,7 +22,7 @@
     "test",
     "tests"
   ],
-  "devDependencies" : {
+  "devDependencies": {
     "jasmine": ">2.0.0"
   },
   "dependencies": {
