@@ -98,23 +98,40 @@ $(function () {
         _.map(
           Applet.top_descendents(o.script, selector),
           function (t) {
-            var script = $('<script type="text/applet_placeholder"></script>');
-            var script_id = Applet.id(script);
+            var placeholder = $('<script type="text/applet_placeholder"></script>');
+            var placeholder_id = Applet.id(placeholder);
+            var attr = _.trim(Applet.remove_attr(t, 'template')).split(/\ +/);
+            var name = attr.shift();
+            var pos  = (attr.length > 0) ? attr.pop() : 'replace';
+
             var meta = {
-              name      : Applet.remove_attr(t, 'template'),
+              name      : name,
               html      : t.prop('outerHTML'),
               mustache  : Hogan.compile(t.prop('outerHTML')),
-              script_id : script_id
+              placeholder_id : placeholder_id,
+              elements  : null,
+              pos       : pos
             };
 
             MegaUni.push(function (o) {
               if (o.name !== 'data' || !_.isPlainObject(o.data[meta.name]))
                 return;
-              var html = meta.mustache.render(o.data[meta.name]);
-              $(html).insertBefore($('#' + meta.script_id));
+
+              // === Remove old nodes:
+              if (meta.elements && meta.pos === 'replace') {
+                meta.elements.remove();
+              }
+
+              var html = $(meta.mustache.render(o.data[meta.name]));
+              if (meta.pos === 'replace' || meta.pos === 'bottom')
+                  html.insertBefore($('#' + meta.placeholder_id));
+              else
+                  html.insertAfter($('#' + meta.placeholder_id));
+
+              meta.elements = html;
             });
 
-            t.replaceWith(script);
+            t.replaceWith(placeholder);
             return meta;
           }
         ) // === each

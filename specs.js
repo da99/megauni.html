@@ -77,6 +77,56 @@ describe('megauni.js:', function () {
       ).toEqual('<div>one 1</div>');
     }); // === it renders elements on top of where it is found
 
+    it('replaces elements, including text nodes', function () {
+      $('#THE_STAGE').html(
+        '<script type="text/applet"><div template="num">{{word}} {{num}}</div></script>'
+      );
+
+      MegaUni
+      .run('compile scripts')
+      .run('data', {num: {word: 'one', num: 1}})
+      .run('data', {num: {word: 'two', num: 2}});
+
+
+      expect(
+        $('#THE_STAGE').text()
+      ).toEqual('two 2');
+    }); // === it replaces elements, including text nodes
+
+    it('appends rendered template above w/ option: top', function () {
+      $('#THE_STAGE').html(
+        '<script type="text/applet"><div template="num top">{{word}} {{num}}</div></script>'
+      );
+
+      MegaUni
+      .run('compile scripts')
+      .run('data', {num: {word: 'one', num: 1}})
+      .run('data', {num: {word: 'two', num: 2}});
+
+
+      expect(
+        $('#THE_STAGE').text()
+      ).toEqual('two 2one 1');
+    }); // === it appends rendered template above w/ option: top
+
+    it('appends rendered template below w/ option: bottom', function () {
+      $('#THE_STAGE').html(
+        '<script type="text/applet"><div template="num bottom">{{word}} {{num}}</div></script>'
+      );
+
+      MegaUni
+      .run('compile scripts')
+      .run('data', {num: {word: 'one', num: 1}})
+      .run('data', {num: {word: 'two', num: 2}})
+      .run('data', {num: {word: 'three', num: 3}})
+      ;
+
+
+      expect(
+        $('#THE_STAGE').text()
+      ).toEqual('one 1two 2three 3');
+    }); // === it appends rendered template above w/ option: bottom
+
   }); // === describe template =================
 
 }); // === describe megauni.js =================
