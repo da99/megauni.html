@@ -10,9 +10,9 @@ $(function () {
 
   // === Examples:
   //
-  // .run('str')
-  // .run('str', {...})
-  // .run({name: 'str', ... })
+  // .run('str')               => {name: 'str'}
+  // .run('str', {...})        => {name: 'str', data: {...}}
+  // .run({name: 'str', ... }) => {name: 'str', ... }
   //
   MegaUni.run = function (msg, data) {
 
