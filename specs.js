@@ -13,7 +13,7 @@ describe('megauni.js:', function () {
     it('inserts contents before SCRIPT tag', function () {
       $('#THE_STAGE')
       .html('<script type="text/applet"><div id="target" show_if="logged_in?">logged</div></script>');
-      MegaUni.run('compile scripts');
+      MegaUni.run();
       expect(
         $($('#THE_STAGE').children().first()).attr('id')
       ).toEqual('target');
@@ -26,7 +26,7 @@ describe('megauni.js:', function () {
     it('sets node to display=none by default', function () {
       $('#THE_STAGE')
       .html('<script type="text/applet"><div id="target" show_if="logged_in?">logged</div></script>');
-      MegaUni.run('compile scripts');
+      MegaUni.run();
       expect(
         $('#target').css('display')
       ).toEqual('none');
@@ -36,7 +36,7 @@ describe('megauni.js:', function () {
       $('#THE_STAGE')
       .html('<script type="text/applet"><div id="target" show_if="logged_in?">logged</div></script>');
 
-      MegaUni.run('compile scripts');
+      MegaUni.run();
       MegaUni.run('data', {'logged_in?': true});
 
       expect(

@@ -10,6 +10,7 @@ $(function () {
 
   // === Examples:
   //
+  // .run()                    => {name: 'compile scripts'}
   // .run('str')               => {name: 'str'}
   // .run('str', {...})        => {name: 'str', data: {...}}
   // .run({name: 'str', ... }) => {name: 'str', ... }
@@ -17,6 +18,10 @@ $(function () {
   MegaUni.run = function (msg, data) {
 
     var o = {};
+
+    if (!msg) {
+      msg = 'compile scripts';
+    }
 
     if (_.isPlainObject(msg)) {
       o = msg;
