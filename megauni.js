@@ -3,7 +3,8 @@
 /* global Applet, Hogan  */
 
 var MegaUni = {
-  stack : []
+  stack : [],
+  cache : { is_reset: false }
 };
 
 $(function () {
@@ -30,6 +31,11 @@ $(function () {
         o.name = Applet.standard_name(msg);
         o.data = data;
       }
+    }
+
+    if (o.name === 'compile scripts' && !MegaUni.cache.is_reset) {
+      MegaUni.cache.is_reset = true;
+      MegaUni.run('reset');
     }
 
     _.each(
@@ -82,11 +88,10 @@ $(function () {
     }
   );
 
-  MegaUni.templates = [];
   MegaUni.push(
     function (o) {
       if (o.name === 'reset') {
-        MegaUni.templates = [];
+        MegaUni.cache.templates = [];
         return;
       }
 
@@ -94,7 +99,7 @@ $(function () {
         return;
 
       var selector  = '*[template]';
-      MegaUni.templates = MegaUni.templates.concat(
+      MegaUni.cache.templates = MegaUni.cache.templates.concat(
         _.map(
           Applet.top_descendents(o.script, selector),
           function (t) {
@@ -143,17 +148,15 @@ $(function () {
     }
   ); // === template ==============================
 
-  MegaUni.show_if_data_cache = {};
-
   MegaUni.push( // === show_if =================================
     function (o) {
       if (o.name === 'reset') {
-        MegaUni.show_if_data_cache = {};
+        MegaUni.cache.show_if_data_cache = {};
         return;
       }
 
       if (o.name === 'data') {
-        _.extend(MegaUni.show_if_data_cache, o.data);
+        _.extend(MegaUni.cache.show_if_data_cache, o.data);
         return;
       }
 
@@ -168,7 +171,7 @@ $(function () {
           var id   = Applet.id(node);
           var val  = Applet.remove_attr(node, 'show_if');
 
-          if (!Applet.is_true(MegaUni.show_if_data_cache, val))
+          if (!Applet.is_true(MegaUni.cache.show_if_data_cache, val))
             node.hide();
 
           MegaUni.push(
@@ -195,9 +198,10 @@ $(function () {
   MegaUni.core = _.clone(MegaUni.stack);
   MegaUni.push(
     function (o) {
-      if (o.name !== 'reset')
+      if (o.name !== 'before reset')
         return;
       MegaUni.stack = MegaUni.core;
+      MegaUni.cache = {}
     }
   );
 }); // === scope
