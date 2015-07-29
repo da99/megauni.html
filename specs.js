@@ -84,7 +84,7 @@ describe('megauni.js:', function () {
 
       MegaUni
       .run('compile scripts')
-      .run('data', {num: {word: 'one', num: 1}})
+      .run('data', {num: {word: 'one', num: Date.now().toString()}})
       .run('data', {num: {word: 'two', num: 2}});
 
 
