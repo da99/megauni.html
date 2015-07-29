@@ -122,13 +122,17 @@ $(function () {
                 meta.elements.remove();
               }
 
-              var html = $(meta.mustache.render(o.data[meta.name]));
+              var html = $(meta.mustache.render(o.data));
               if (meta.pos === 'replace' || meta.pos === 'bottom')
                   html.insertBefore($('#' + meta.placeholder_id));
               else
                   html.insertAfter($('#' + meta.placeholder_id));
 
               meta.elements = html;
+              MegaUni.run({
+                name: 'compile dom',
+                dom:  html
+              });
             });
 
             t.replaceWith(placeholder);
@@ -139,8 +143,20 @@ $(function () {
     }
   ); // === template ==============================
 
+  MegaUni.show_if_data_cache = {};
+
   MegaUni.push( // === show_if =================================
     function (o) {
+      if (o.name === 'reset') {
+        MegaUni.show_if_data_cache = {};
+        return;
+      }
+
+      if (o.name === 'data') {
+        _.extend(MegaUni.show_if_data_cache, o.data);
+        return;
+      }
+
       if (o.name !== 'compile scripts' && o.name !== 'compile dom')
         return;
 
@@ -152,7 +168,8 @@ $(function () {
           var id   = Applet.id(node);
           var val  = Applet.remove_attr(node, 'show_if');
 
-          node.hide();
+          if (!Applet.is_true(MegaUni.show_if_data_cache, val))
+            node.hide();
 
           MegaUni.push(
             function (o) {

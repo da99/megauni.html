@@ -57,7 +57,7 @@ describe('megauni.js:', function () {
 
     it('does not render by default', function () {
       $('#THE_STAGE').html(
-        '<script type="text/applet"><div template="num">{{word}} {{num}}</div></script>'
+        '<script type="text/applet"><div template="num">{{num.word}} {{num.num}}</div></script>'
       );
       MegaUni.run();
       expect(
@@ -69,7 +69,7 @@ describe('megauni.js:', function () {
 
     it('renders elements on top of where it is found', function () {
       $('#THE_STAGE').html(
-        '<script type="text/applet"><div template="num">{{word}} {{num}}</div></script>'
+        '<script type="text/applet"><div template="num">{{num.word}} {{num.num}}</div></script>'
       );
       MegaUni.run('compile scripts').run('data', {num: {word: 'one', num: 1}});
       expect(
@@ -79,7 +79,7 @@ describe('megauni.js:', function () {
 
     it('replaces elements, including text nodes', function () {
       $('#THE_STAGE').html(
-        '<script type="text/applet"><div template="num">{{word}} {{num}}</div></script>'
+        '<script type="text/applet"><div template="num">{{num.word}} {{num.num}}</div></script>'
       );
 
       MegaUni
@@ -95,7 +95,7 @@ describe('megauni.js:', function () {
 
     it('appends rendered template above w/ option: top', function () {
       $('#THE_STAGE').html(
-        '<script type="text/applet"><div template="num top">{{word}} {{num}}</div></script>'
+        '<script type="text/applet"><div template="num top">{{num.word}} {{num.num}}</div></script>'
       );
 
       MegaUni
@@ -111,7 +111,7 @@ describe('megauni.js:', function () {
 
     it('appends rendered template below w/ option: bottom', function () {
       $('#THE_STAGE').html(
-        '<script type="text/applet"><div template="num bottom">{{word}} {{num}}</div></script>'
+        '<script type="text/applet"><div template="num bottom">{{num.word}} {{num.num}}</div></script>'
       );
 
       MegaUni
@@ -121,11 +121,34 @@ describe('megauni.js:', function () {
       .run('data', {num: {word: 'three', num: 3}})
       ;
 
-
       expect(
         $('#THE_STAGE').text()
       ).toEqual('one 1two 2three 3');
     }); // === it appends rendered template above w/ option: bottom
+
+    it('renders template w/ attr functionality', function () {
+      $('#THE_STAGE').html(
+        '<script type="text/applet"><div template="num" id="target"><span show_if="show_num?">{{num.word}}</span></div></script>'
+      );
+
+      MegaUni
+      .run('compile scripts')
+      .run('data', {'show_num?': true, num: {'num?': true, word: 'number'}})
+      ;
+
+      expect(
+        $('#target span').css('display')
+      ).toEqual('inline');
+
+      MegaUni
+      .run('data', {'show_num?' : false})
+      ;
+
+      expect(
+        $('#target span').css('display')
+      ).toEqual('none');
+
+    }); // === it renders template w/ attr functionality
 
   }); // === describe template =================
 
