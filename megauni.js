@@ -16,7 +16,7 @@ $(function () {
     i.func_ids   = {}; // give each callback an id to be used in .configs
 
     i.run('constructor');
-    i.run('compile scripts');
+    i.run('dom');
   }; // === MegaUni constructor ===================================
 
   MegaUni.prototype.config_id = function (f) {
@@ -37,7 +37,6 @@ $(function () {
 
   // === Examples:
   //
-  // .run()                    => {name: 'compile scripts'}
   // .run('str')               => {name: 'str'}
   // .run('str', {...})        => {name: 'str', data: {...}}
   // .run({name: 'str', ... }) => {name: 'str', ... }
@@ -55,6 +54,8 @@ $(function () {
         data : data
       };
     }
+
+    o.megauni = instance;
 
     _.each(
       [
@@ -81,12 +82,12 @@ $(function () {
   }; // === func
 
   MegaUni.prototype.unshift = function (func) {
-    MegaUni.stack.unshift(func);
+    this.stack.unshift(func);
     return MegaUni;
   };
 
   MegaUni.prototype.push = function (func) {
-    MegaUni.stack.push(func);
+    this.stack.push(func);
     return MegaUni;
   };
 
@@ -95,9 +96,9 @@ $(function () {
   MegaUni.core = [];
 
 
-  // === compile scripts ======================
+  // === dom ==================================
   MegaUni.core.push(function (o) {
-    if (o.name === 'before compile scripts') {
+    if (o.name === 'before dom') {
       Applet.each_raw_script(
         function (script, all) {
           o.script = script;
@@ -106,12 +107,12 @@ $(function () {
       );
     }
 
-    if (o.name === 'after compile scripts') {
+    if (o.name === 'after dom') {
       var s = $(o.script);
       (s.contents())
       .insertBefore(s);
     }
-  }); // === core: compile scripts
+  }); // === core: dom
 
 
   // === template ====================
@@ -123,7 +124,7 @@ $(function () {
       return;
     }
 
-    if (o.name !== 'compile scripts' && o.name !== 'compile dom')
+    if (o.name !== 'dom')
       return;
 
     var selector  = '*[template]';
@@ -146,7 +147,7 @@ $(function () {
             pos       : pos
           };
 
-          MegaUni.push(function (o) {
+          o.megauni.push(function (o) {
             if (o.name !== 'data' || !_.isPlainObject(o.data[meta.name]))
               return;
 
@@ -163,7 +164,7 @@ $(function () {
 
             meta.elements = html;
             MegaUni.run({
-              name: 'compile dom',
+              name: 'dom',
               dom:  html
             });
           });
@@ -176,6 +177,7 @@ $(function () {
   }); // ==== core: template ==========
 
 
+  // === show_if ====================
   MegaUni.core.push(function (o) {
     var this_config = o.this_config;
 
@@ -189,7 +191,7 @@ $(function () {
       return;
     }
 
-    if (o.name !== 'compile scripts' && o.name !== 'compile dom')
+    if (o.name !== 'dom')
       return;
 
     var selector = '*[show_if]';
@@ -203,7 +205,7 @@ $(function () {
         if (!Applet.is_true(this_config.show_if_data_cache, val))
           node.hide();
 
-        MegaUni.push(
+        o.megauni.push(
           function (o) {
           if (o.name !== 'data')
             return;
