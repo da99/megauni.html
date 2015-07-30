@@ -21,7 +21,7 @@ $(function () {
 
   MegaUni.prototype.config_id = function (f) {
     var i = this;
-    var id = _.findKey(i.func_ids, _.matches(f));
+    var id = _.findKey(i.func_ids, function (v) { return v === f; } );
 
     if (!id) {
       i.id_counter   = i.id_counter + 1;
@@ -68,27 +68,29 @@ $(function () {
       function (name) {
         o.name = Applet.standard_name(name);
         var i = 0, f;
-        while (MegaUni.stack[i]) {
-          f             = MegaUni.stack[i];
+
+        while (instance.stack[i]) {
+          f             = instance.stack[i];
           o.this_config = instance.configs[instance.config_id(f)];
           o.this_func   = f;
+
           f(o);
           ++i;
         }
       }
     ); // === _.each name
 
-    return MegaUni;
+    return instance;
   }; // === func
 
   MegaUni.prototype.unshift = function (func) {
     this.stack.unshift(func);
-    return MegaUni;
+    return this;
   };
 
   MegaUni.prototype.push = function (func) {
     this.stack.push(func);
-    return MegaUni;
+    return this;
   };
 
 
@@ -96,21 +98,38 @@ $(function () {
   MegaUni.core = [];
 
 
+  var raw_scripts = function () {
+    return $('script[type="text/applet"]:not(script.compiled)');
+  }; // === func
+
   // === dom ==================================
   MegaUni.core.push(function (o) {
     if (o.name === 'before dom') {
-      Applet.each_raw_script(
-        function (script, all) {
-          o.script = script;
-          o.all    = all;
+      if (!o.dom) {
+        o.dom = raw_scripts();
+        _.each(o.dom, function (raw) {
+          var script   = $(raw);
+          var contents = $(script.html());
+          script.empty();
+          script.append(contents);
+          script.addClass('compiled');
+        });
+      }
+    }
+
+    if (o.name === 'after dom') {
+      _.each(
+        o.dom.filter('script'),
+        function (e) {
+          var s = $(e);
+          (s.contents()).insertBefore(s);
         }
       );
     }
 
-    if (o.name === 'after dom') {
-      var s = $(o.script);
-      (s.contents())
-      .insertBefore(s);
+    if (o.name === 'after after dom') {
+      if (raw_scripts().length > 0)
+        o.megauni.run('dom');
     }
   }); // === core: dom
 
@@ -118,6 +137,7 @@ $(function () {
   // === template ====================
   MegaUni.core.push(function (o) {
     var this_config = o.this_config;
+    var megauni     = o.megauni;
 
     if (o.name === 'constructor') {
       o.this_config.templates = [];
@@ -130,7 +150,7 @@ $(function () {
     var selector  = '*[template]';
     this_config.templates = this_config.templates.concat(
       _.map(
-        Applet.top_descendents(o.script, selector),
+        Applet.top_descendents(o.dom, selector),
         function (t) {
           var placeholder = $('<script type="text/applet_placeholder"></script>');
           var placeholder_id = Applet.id(placeholder);
@@ -147,7 +167,7 @@ $(function () {
             pos       : pos
           };
 
-          o.megauni.push(function (o) {
+          megauni.push(function (o) {
             if (o.name !== 'data' || !_.isPlainObject(o.data[meta.name]))
               return;
 
@@ -163,7 +183,7 @@ $(function () {
               html.insertAfter($('#' + meta.placeholder_id));
 
             meta.elements = html;
-            MegaUni.run({
+            megauni.run({
               name: 'dom',
               dom:  html
             });
@@ -196,7 +216,7 @@ $(function () {
 
     var selector = '*[show_if]';
     _.each(
-      $(o.script || o.dom).find(selector).addBack(selector),
+      $(o.dom).find(selector).addBack(selector),
       function (raw) {
         var node = $(raw);
         var id   = Applet.id(node);
@@ -207,19 +227,19 @@ $(function () {
 
         o.megauni.push(
           function (o) {
-          if (o.name !== 'data')
-            return;
+            if (o.name !== 'data')
+              return;
 
-          var data = o.data;
-          var ans = Applet.is_true(data, val);
-          if (ans === undefined)
-            return;
+            var data = o.data;
+            var ans = Applet.is_true(data, val);
+            if (ans === undefined)
+              return;
 
-          if ( ans )
-            $('#' + id).show();
-          else
-            $('#' + id).hide();
-        }
+            if ( ans )
+              $('#' + id).show();
+            else
+              $('#' + id).hide();
+          }
         ); // === push
       } // === function raw
     ); // === _.each
