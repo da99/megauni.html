@@ -165,4 +165,25 @@ describe('megauni.js:', function () {
 
   }); // === describe template =================
 
+  describe('forms:', function () {
+
+    it('adds handlers to buttons', function () {
+      $('#THE_STAGE').html(
+        '<form id="target"><input type="hidden" name="hello" value="goodbye" /><button class="submit">SUBMIT</button></form>'
+      );
+      m = new MegaUni();
+
+      var result = null;
+      m.push(function (o) {
+        if (o.name !== 'form submit')
+          return;
+        result = o.data.hello;
+        o['submit?'] = false;
+      });
+
+      $('#THE_STAGE button.submit').click();
+      expect(result).toEqual('goodbye');
+    }); // === it adds handlers to buttons
+  }); // === describe forms =================
+
 }); // === describe megauni.js =================

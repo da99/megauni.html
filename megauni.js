@@ -17,6 +17,7 @@ $(function () {
 
     i.run('constructor');
     i.run('dom');
+    i.run('form');
   }; // === MegaUni constructor ===================================
 
   MegaUni.prototype.config_id = function (f) {
@@ -244,6 +245,33 @@ $(function () {
       } // === function raw
     ); // === _.each
   }); // === core: show_if ========
+
+  MegaUni.core.push(
+    function (o) {
+      if (o.name !== 'before form')
+        return;
+      if (o.name === 'form') {
+        if (!o['submit?'])
+          return;
+        o.send_ajax(o.data);
+      }
+      _.each(
+        $('form:not(form.compiled) button.submit'),
+        function (raw) {
+          $(raw).on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            o.megauni.run({
+              name: 'form submit',
+              'submit?' : true,
+              form: $(this).parent('form').attr('id'),
+              data: $(this).parent('form').serializeJSON()
+            });
+          });
+        }
+      ); // === each
+    }
+  ); // === push
 
 }); // === scope ==================================
 
