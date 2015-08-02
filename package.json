@@ -10,7 +10,11 @@
   },
   "devDependencies": {
     "bower": "^1.4.1",
-    "jshint": "^2.8.0"
+    "jshint": "^2.8.0",
+    "koa": "^0.21.0",
+    "koa-router": "^5.1.2",
+    "koa-static": "^1.4.9",
+    "koa-logger": "^1.2.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
