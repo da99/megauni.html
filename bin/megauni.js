@@ -25,6 +25,28 @@ Green='\e[0;32m'
 Orange='\e[0;33m'
 # ==============================================================
 
+start_server () {
+  (iojs server.js) &
+  server_pid="$!"
+  echo "=== Started server: $server_pid - $$"
+}
+
+shutdown_server () {
+  if [[ ! -z "$server_pid"  ]]; then
+    if kill -0 "$server_pid" 2>/dev/null; then
+      echo "=== Shutting server down: $server_pid - $$ ..."
+      kill -SIGINT "$server_pid"
+      server_pid=""
+    fi
+  fi
+}
+
+jshint () {
+  echo -n "=== Running jshint: $1: "
+  ( $0 jshint "$1" && echo -e "${green}Passed${reset_color}" ) || js_failed=""
+}
+
+
 case "$action" in
 
   "help")
@@ -40,9 +62,15 @@ case "$action" in
     IFS=$'\n'
     re='^[0-9]+$'
 
+    for file in ./*.js
+    do
+      jshint "$file"
+    done
+
+    start_server
 
     echo "=== Watching:"
-    inotifywait --quiet --monitor --event close_write  "./" "bin/megauni.js"  | while read CHANGE
+    inotifywait --quiet --monitor --event close_write  "./" "$0"  | while read CHANGE
     do
       dir=$(echo "$CHANGE" | cut -d' ' -f 1)
       op=$(echo "$CHANGE" | cut -d' ' -f 2)
@@ -51,11 +79,22 @@ case "$action" in
 
       echo -e "=== $CHANGE (${path})"
 
+      if [[ "$path" =~ "$0" ]]; then
+        echo "=== Reloading..."
+        shutdown_server
+        exec "$0" "$orig_args"
+      fi
+
       if [[ "$file" =~ ".js" ]]; then
         echo -n "=== Running jshint: "
         ( $0 jshint $path && echo -e "${green}Passed${reset_color}" ) || js_failed=""
 
         echo ""
+
+        if [[ "$file" =~ "server.js" ]]; then
+          shutdown_server
+          start_server
+        fi
       fi
     done
 
