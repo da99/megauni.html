@@ -18,7 +18,7 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "scripts/",
+    "Public/scripts/vendor/",
     "test",
     "tests"
   ],

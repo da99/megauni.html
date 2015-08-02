@@ -53,9 +53,64 @@ case "$action" in
   "help")
     echo ""
     echo "  $ bin/megauni.js  watch"
+    echo "  $ bin/megauni.js  deploy"
+    echo ""
+    echo "  $ bin/megauni.js  render_stylus"
+    echo "  $ bin/megauni.js  render   path/to/file.rb"
     echo ""
     exit 0
     ;;
+
+  "deploy")
+    bin/megauni npm install
+    node_modules/bower/bin/bower install
+    ;;
+
+  "render_stylus")
+    for f in ./Public/applets/*/*.styl
+    do
+      if [[ ! "$f" =~ "vars.styl" ]] ; then
+        bin/megauni stylus $f
+      fi
+    done
+    ;;
+
+  "render")
+    echo "Rendering: $1"
+    name="$1"
+    shift
+
+    if [[ -f "$name" ]]; then
+      dir="$(dirname "$name")"
+      name="$(basename "$dir")"
+    else
+      dir="./Public/applets/$name"
+    fi
+
+    markup="$dir/markup.html"
+
+    if [[ ! -d "$dir" ]]; then
+      echo "Not found: $dir" 1>&2
+      exit 1
+    fi
+
+    err=""
+    ruby -r"./Public/applets/MUE/layout" -r"${dir}/markup.rb" -e "
+      File.write(\"$markup\", HTML);
+    " || err="true"
+
+    if [[ -z "$err" ]]; then
+      if [[ -f "$markup" ]]; then
+        echo "$markup"
+      fi
+
+      if [[ "$@" =~ "print" ]]; then
+        cat "$markup"
+      fi
+    fi # === if no err
+
+    ;;
+
 
   "watch")
 
