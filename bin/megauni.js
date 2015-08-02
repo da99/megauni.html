@@ -3,6 +3,7 @@
 #
 #
 action="$1"
+orig_args="$@"
 shift
 set -u -e -o pipefail
 
@@ -87,14 +88,18 @@ case "$action" in
 
       if [[ "$file" =~ ".js" ]]; then
         echo -n "=== Running jshint: "
-        ( $0 jshint $path && echo -e "${green}Passed${reset_color}" ) || js_failed=""
+        js_pass="true"
+        ( $0 jshint $path && echo -e "${green}Passed${reset_color}" ) || js_pass=""
+
+        if [[ ! -z "$js_pass" ]]; then
+          if [[ "$file" =~ "server.js" ]]; then
+            shutdown_server
+            start_server
+          fi
+        fi
 
         echo ""
 
-        if [[ "$file" =~ "server.js" ]]; then
-          shutdown_server
-          start_server
-        fi
       fi
     done
 
