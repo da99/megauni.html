@@ -1,0 +1,21 @@
+body {
+  background: #f1f1f1 url("/Error/escheresque.png");
+  text-align: center;
+  padding: 40px 20px 20px 20px;
+}
+
+#Message {
+  padding: 0.5em;
+  background: #ffea74 url("/Error/orange_yellow.gif") repeat -10px 0;
+  font-family: 'Ubuntu', 'Ubuntu Beta', UbuntuBeta, Ubuntu, 'Bitstream Vera Sans', 'DejaVu Sans', Tahoma, proxima-nova, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0.1em 0.1em 0.1em #999;
+  border-radius: 0.4em;
+}
+
+#Message div.rest {
+  color: #fffdd2;
+  font-size: 180%;
+}
+

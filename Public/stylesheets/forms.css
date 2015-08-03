@@ -1,0 +1,159 @@
+form.hidden_fields div.fields {
+  display: none;
+}
+form div.undo {
+  display: none;
+}
+form div.show_again {
+  display: none;
+}
+form.trashed div.fields {
+  display: none;
+}
+form.trashed div.undo {
+  display: block;
+}
+form div.field {
+  padding: 0 0 6px 0;
+}
+form div.field label,
+form div.field span.label,
+form div.field span.value,
+form div.field span.optional,
+form div.field span.info,
+form div.field div.label {
+  background: transparent;
+  color: #185dad;
+  font-weight: bold;
+  font-size: 80%;
+  text-transform: uppercase;
+}
+form div.field span.value {
+  display: block;
+  color: #6d6d6d;
+}
+textarea,
+select,
+option {
+  color: #000;
+}
+textarea.blurred {
+  font-style: italic;
+  color: #afafaf;
+  font-weight: bold;
+}
+form {
+  padding: 0;
+  margin: 0;
+}
+form input[type="password"],
+form input[type="text"],
+form textarea {
+  margin: 0;
+}
+form div.errors {
+  color: #f00919;
+  background: #fff;
+  padding: 2px 4px 4px 4px;
+  border: 1px dashed #f00919;
+  border-width: 1px 0;
+  margin-top: 10px;
+}
+form div.success {
+  border: 1px dashed #d60600;
+  border-width: 1px 0;
+  font-style: italic;
+  font-family: 'Ubuntu', 'Ubuntu Beta', UbuntuBeta, Ubuntu, 'Bitstream Vera Sans', 'DejaVu Sans', Tahoma, proxima-nova, 'Helvetica Neue', Arial, sans-serif;
+  padding: 4px;
+  border-radius: 0 0 3px 3px;
+  color: #072700;
+  margin-top: 10px;
+}
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+.uneditable-input {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+  -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+  -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+  transition: border linear 0.2s, box-shadow linear 0.2s;
+}
+textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="color"]:focus,
+.uneditable-input:focus {
+  border-color: rgba(82,168,236,0.8);
+  outline: 0;
+  outline: thin dotted 9;
+/* IE6-9 */
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(82,168,236,0.6);
+  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(82,168,236,0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(82,168,236,0.6);
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  background: #fff7c7;
+}
+div.loading {
+  background: transparent url("/img/small_loading.gif?v2") no-repeat left center;
+}
+form {
+  text-align: left;
+}
+form div.field span.label,
+form div.field label {
+  font-weight: normal;
+  color: #727272;
+}
+form div.field input[type="text"] {
+  font-size: 190%;
+}
+form textarea {
+  min-width: 97%;
+  max-width: 97%;
+  max-height: 250px;
+  min-height: 100px;
+  width: 97%;
+}
+form div.label_mild,
+form span.label_mild {
+  color: #008eed;
+  border-radius: 0;
+}
+form div.buttons button {
+  font-size: 95%;
+}
+form div.loading {
+  font-family: 'Ubuntu', 'Ubuntu Beta', UbuntuBeta, Ubuntu, 'Bitstream Vera Sans', 'DejaVu Sans', Tahoma, proxima-nova, 'Helvetica Neue', Arial, sans-serif;
+  font-style: italic;
+}

@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>Error...</title>
+    <style type="text/css">
+    <!--
+        a:link, a:visited {
+            color: #F00919;
+            font-family: helvetica, arial, sans-serif;
+            font-weight: bold;
+            padding: 1px 1px 2px 1px;
+        }
+
+        a:hover, a:active {
+            color: #fff;
+            background: #F00919;
+            
+        }
+
+
+        html, body, div, h1, h2, h3, h4, h5, h6, ul, ol, dl, li, dt, dd, 
+        p, blockquote, pre, form, fieldset, table, th, td { 
+          margin: 0; padding: 0; 
+        }
+
+        #loading {
+          font-size: 2em; 
+          padding: 20px 10px 10px 10px; 
+          text-transform: lowercase; 
+          font-weight: bold; }
+          #loading img { margin: 0 10px 0 0;}
+
+        #content { display: none; }
+
+        #busy_body {
+          padding: 0;
+          margin: 0;
+          background: #A2D3E0 none no-repeat top center;
+          background-image: none;
+          text-align: center;
+          font-size: 62.5%;
+        }
+
+        #busy_container {
+           width: 800px;
+           margin: 0 auto;
+           text-align: center;
+           padding-top: 50px;
+        }
+
+        #error_msg {
+	        margin: 0 auto;
+	        overflow: hidden;
+	        width: 225px;
+	        height: 107px;
+	        font-size: x-small;
+        }
+
+
+        #tagline { 
+	        color: #A2D3E0;
+         }
+        #status_msg { 
+	        text-align: center;
+	        font-family: helvetica, arial, sans-serif;
+	        color: #073D6F;
+	        font-size: large;
+	        padding: 10px 0 0 0;
+	        font-weight: bold;
+	        font-style: italic;
+        }
+    //-->
+    </style>
+	<!--[if IE]> 
+	<style type="text/css">
+	#error_msg img {display: none} 
+	</style>
+	<![endif]-->
+  </head>
+  <body id="busy_body">
+    	<div id="busy_container">
+    		<p id="error_msg">=(</p>
+				<p id="tagline">Sorry:</p>
+				<p id="status_msg">You have discovered a super-secret part of this site. But, I can't show it to you :(</p>
+				
+    	</div>
+
+      <!-- start Mixpanel -->
+      <script type="text/javascript">(function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);
+      mixpanel.init("86bbd0a09d702cd9eef7ba93d59dca93");</script>
+      <script type="text/javascript">
+        mixpanel.track("403 error", {
+          "page": window.location.href
+        });
+      </script>
+      <!-- end Mixpanel -->
+
+
+
+  </body>
+</html>

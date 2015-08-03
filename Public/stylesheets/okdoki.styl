@@ -1,0 +1,311 @@
+// /* Palettes used: */
+// /* http://www.colourlovers.com/palette/2524852/FRUITY */
+
+// /* Spanning the height of the browser window: */
+// /* http://www.webmasterworld.com/forum83/200.htm */
+
+// /* blues: */
+// /* #0081D7; */
+// /* yellows: */
+// /* #FFF175; */
+
+@import "_colors"
+@import "_fonts"
+
+html, body
+  margin   : 0;
+  padding  : 0;
+
+body
+  background-color: #F2F2F2;
+  font-family: $sans-serif;
+
+p
+  margin: 0.5em 0
+  padding: 0
+
+ul
+  margin-top: 0;
+  margin-bottom: 0;
+
+
+
+a:link
+  padding: 0 4px 2px 4px;
+  color: $pink
+
+a:visited
+  color: #966e7f
+  // border-color: lighten($samar_red, 70%)
+
+a:hover
+  background: $pink;
+  color: #fff
+  // border-color: $pink
+
+a:visited:hover
+  color: #fff
+  background: #966e7f
+  // border-color: #966e7f
+
+a:link
+  &.on
+    margin: 0 5px 0 0
+  &.on, &.off, &.show_more
+    border-radius: 3px
+  &.on:hover
+    background: $green
+  &.off:hover
+    background: $orange
+  &.is_on,
+  &.is_off
+    color: #fff
+    text-decoration: none
+    font-weight: bold
+    cursor: default
+  &.is_on
+    background: $green
+  &.is_off
+    background: $orange
+
+a:visited.is_on,
+a:visited.is_off
+  color: #fff
+
+h2
+  line-height: 1.5em;
+  padding: 0;
+  margin: 0;
+  font-size: 110%
+  padding: 4px
+  text-align: center
+  color: #fff
+  text-shadow: #4d4d4d 0.1em 0.1em 0.1em;
+  font-weight: normal
+  background: $glass_black_lighter
+  border-radius: 6px 6px 0 0
+
+h3
+  padding: 0
+  margin: 0
+
+h4
+  padding: 0
+  margin: 0
+
+code
+  display: block;
+  margin: 0;
+  padding: 4px 2px 4px 5px;
+  border-radius: 4px 0 0 4px;
+
+
+strong
+  background: #008EED;
+  color: #fff;
+  padding: 0 5px 2px 5px;
+  font-size: 90%;
+  font-weight: normal;
+
+
+body.logged_in #okdoki_nav_bar a.home
+  margin-right: 10px;
+
+#okdoki_nav_bar, #log_out
+  background: #000;
+  font-size: 0.6em;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 2px 8px ;
+  margin: 0 8px 7px 0;
+  border-radius: 0 0 3px 3px;
+  position: absolute;
+  top: 0;
+  right: 10px;
+
+
+
+span.as_this_life
+  display: none
+
+
+
+div.no_records
+  display: none;
+
+
+div.edit_able_s
+  padding: 0 0 4px 0;
+
+  div.label
+    font-weight: bold;
+    font-size: 80%;
+    display: inline-block;
+    padding: 0 5px;
+    margin-bottom: 3px;
+
+  div.loading
+    background-position: center center;
+
+
+  div.loading div.hide_able
+    visibility: hidden;
+
+
+  div.loading div.input_able
+    visibility: hidden;
+
+  div.edit_able
+    padding: 0 0 0 13px;
+
+
+    div.label
+      margin: 0;
+      background: transparent;
+      color: #000;
+
+
+    div.input_able
+      padding: 0 0 5px 0;
+
+
+    div.input_able input[type="text"],
+    div.input_able input[type="password"]
+      width: 70%;
+
+
+    div.input_able div.buttons
+      padding-left: 4px;
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: 75%;
+      font-weight: bold;
+
+
+    span.title
+      display: inline;
+      font-size: 85%;
+      font-weight: bold;
+      color: #2D2D2D;
+
+
+    span.value
+      display: inline;
+      font-size: 85%;
+
+
+    a.edit
+      font-size: 75%;
+      font-weight: bold;
+      text-transform: uppercase;
+
+
+    div.success
+      border-radius  : 3px;
+      display        : inline-block;
+      font-weight    : bold;
+      background     : #74BB1B;
+      color          : #fff;
+      font-size      : 60%;
+      text-transform : uppercase;
+      padding        : 0 4px;
+
+
+    div.error
+      color       : #D01616;
+      font-weight : bold;
+      font-family : serif;
+      font-style  : italic;
+      text-align  : center;
+
+
+    div.input_able div.label
+      color: #2D2D2D;
+
+#Nav_Bar
+  background: #fff
+  background: $glass_white_med
+  text-transform: uppercase
+  font-size: 80%
+  font-weight: bold
+  padding: 0 5px 2px 5px
+
+#Session_Nav
+  float: right
+  padding: 0 5px 2px 5px
+  text-align: right
+  background: #fafafa
+  border-radius: 0 0 0 4px
+  a
+    display: inline-block
+    padding-left: 9px
+    padding-right: 9px
+    text-transform: uppercase
+    font-size: 70%
+    font-weight: bold
+
+#Logo
+  text-shadow: lighten(#000, 30%) 0.1em 0.1em 0.1em
+  font-family: 'Lenka'
+  font-weight: 400
+  font-size: 12pt
+  margin: 0 0 0 0
+  padding: 10px 0 7px 5px
+  span
+    &.main
+      font-size: 12pt
+      color          : #fcfcfc
+      font-weight    : bold
+      font-style     : italic
+      padding-right  : 5px
+      text-transform : uppercase
+
+    &.sub
+      font-size: 12pt
+      color     : $pink
+    &.wat_wat
+      font-family  : $sans-serif
+      padding-left : 5px
+      color        : #fff
+
+
+h1
+  font-family: 'Libertinage', $serif
+  font-size: 280%
+  font-style: normal
+  text-transform: none
+  text-shadow: 1px 1px 1px lighten(#fff, 90%);
+  padding: 10px 5px 10px 10px
+  margin: 0 auto
+
+#Empty
+  background: #fff
+  padding: 1em
+  margin: 1em
+  border-radius: 0.3em
+  font-size: 130%
+  color: darken($grey_on_light, 40%)
+
+#Options
+  div.setting
+    float: right
+    padding: 0
+    margin: 0
+  h3
+    padding-bottom: 1px
+  div.box
+    div.content
+      display: none
+      div.list
+        padding: 0 0 10px 0
+        a:link
+          display: block
+  & div.has_bots
+    div.setting
+      display: none
+    div.content
+      display: block
+
+
+
+

@@ -1,0 +1,331 @@
+html, body {
+
+}
+
+body {
+  background: #fff url('http://megauni.s3.amazonaws.com/bg_overlay.gif');
+}
+
+#chatroom {
+}
+
+  #output {
+    position   : relative;
+    top        : 0;
+    left       : 0;
+    height     : 100%;
+    margin-right: 310px;
+    overflow   : auto;
+  }
+
+    #nav_bar {
+      background: #161616;
+      font-size: 80%;
+      padding-right: 5px;
+      text-align: right;
+    }
+
+      #nav_bar h2 {
+        padding: 0 5px 0 0;
+        margin: 0;
+        display: inline-block;
+        color: #FD6C08;
+      }
+
+      #nav_bar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 10px 0 0;
+        display: inline-block;
+        border-right: 1px dotted #77B12F;
+      }
+
+        #nav_bar li {
+          display: inline-block;
+          padding: 0 10px;
+          margin: 0;
+          border: 1px dotted #77B12F;
+          border-width: 0 0 0 1px;
+        }
+
+          #nav_bar li a.selected {
+            text-decoration: none;
+            color: #A3E452;
+          }
+
+        #nav_bar a:link, #nav_bar a:visited, #nav_bar a:hover {
+          text-transform: uppercase;
+          font-size: 0.8em;
+          font-weight: bold;
+        }
+
+      #nav_bar span.status {
+        display: none;
+      }
+
+      #nav_bar span.intro {
+        color: #ECECEC;
+      }
+
+      #nav_bar span.screen_name {
+        color: #A3E452;
+      }
+
+    div.form {
+      display: none;
+      margin: 10px;
+      padding: 15px 22px 25px 22px;
+      border-radius: 5px;
+      background: #1B1B1B;
+      color: #FD6C08;
+    }
+
+      div.status {
+        display: none;
+        font-style: italic;
+      }
+
+      div.form h2 {
+        font-size: 120%;
+      }
+
+      div.form label {
+        color: #F85D95;
+      }
+
+      div.form input.field {
+        width: 95%;
+        font-size: 150%;
+        font-family: monospace;
+      }
+
+      div.form div.passphrase input.field,
+      div.form div.confirm-passphrase input.field {
+        font-size: 180%;
+      }
+
+      div.form div.submit button {
+        margin-right: 10px;
+      }
+
+    #messages {
+      padding: 10px 0 0 0;
+    }
+
+      #messages div.msg {
+        background : #FFCD66;
+        padding    : 5px 10px;
+        margin     : 5px 10px 10px 0;
+        border-radius: 0 5px 5px 0;
+      }
+
+      #messages div.status_msg {
+        background: #FFF175;
+      }
+
+      #messages div.error_msg {
+        background: #E22714;
+        font-weight: bold;
+        color: #fff;
+      }
+
+  #input {
+    position     : absolute;
+    top          : 0;
+    right        : 0;
+    width        : 300px;
+    height       : 100%;
+    overflow     : auto;
+  }
+
+    #input textarea {
+      max-width: 281px;
+    }
+
+    #log_out {
+      position: static;
+      background: transparent;
+      text-align: right;
+      padding: 0 5px 0 0;
+    }
+      #log_out a:link {
+        display: inline-block;
+        padding: 1px 10px 2px 10px;
+        background: #000;
+        border-radius: 0 0 3px 3px;
+      }
+
+    #input input.field {
+      width: 93%;
+    }
+
+    #create_msg {
+      padding: 0 0 10px 0;
+    }
+
+      #create_msg textarea {
+        width: 94%;
+        color: #000;
+      }
+
+      #create_msg textarea.blur_ed {
+        color: #BFBFBF;
+        font-weight: bold;
+        font-style: italic;
+      }
+
+      #form_create_post {}
+        #form_create_post div.msg {
+          padding: 0;
+        }
+
+
+
+    div.fieldset {
+      padding: 0 0 4px 0;
+    }
+      div.label, span.label {
+        background: transparent;
+        color: #185DAD;
+        padding: 0;
+        margin: 0;
+      }
+
+    div.buttons {
+      text-align: right;
+      padding: 0 5px 0 0;
+    }
+
+    #enter_recip {
+      display: none;
+    }
+      #enter_recip span.value {
+        font-size: 90%;
+      }
+
+#about_bar {
+  background    : #161616;
+  padding       : 0 0 10px 0;
+  margin-bottom : 20px;
+  border-radius: 4px 0 0 4px;
+}
+
+  #about_bar h2 {
+    color         : #FD6C08;
+  }
+
+  #about_bar div.main {
+    padding: 4px 0 4px 10px;
+  }
+
+  #about_bar span.divider {
+    padding: 0 3px;
+  }
+
+  p {
+    padding: 0;
+    margin: 0;
+  }
+
+  #about_bar code {
+    margin-bottom: 10px;
+  }
+
+  #about_bar div.section {
+    padding: 5px 0px 8px 10px;
+    color: #fff;
+  }
+
+    #about_bar div.section p {
+      padding-right: 8px;
+    }
+
+
+div.no_records {
+  display: none;
+}
+
+div.contacts {
+  border-radius: 4px 0 0 0;
+  margin: 0 0 10px 0;
+}
+
+
+  div.contacts h2 {
+    border-radius: 4px 0 0 0;
+    color: #fff;
+    padding: 3px 0 3px 8px;
+    font-size: 80%;
+    background: #008EED;
+  }
+
+  div.contacts div.loading {
+  }
+
+  div.contacts ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+    div.contacts li {
+      border-bottom: 1px solid #313131;
+      padding: 4px 0 4px 6px;
+      border-radius: 4px 0 0  4px;
+    }
+
+  div.contacts div.loading {
+    padding: 3px 0 3px 25px;
+    background-position: 4px center;
+    background-color: #fff;
+    border-bottom: 1px dashed #A5ABC6;
+  }
+
+  div.contacts div.contact,
+  div.contacts div.no_records {
+    padding      : 2px 2px 2px 5px;
+    font-weight  : bold;
+    background   : #fff;
+    border-bottom: 1px dashed #A5ABC6;
+  }
+
+    div.contacts div.no_records {
+      font-weight: normal;
+      padding-left: 10px;
+      font-style: italic;
+      font-family: serif;
+    }
+
+    div.contacts div.contact div.screen_name {
+    }
+
+    div.contacts div.contact div.as {
+      font-size    : 85%;
+
+      /* The above element is a padded link, so we add padding  */
+      /* for alignment. */
+      padding-left : 5px;
+    }
+
+      div.contacts div.contact div.as span.intro {
+        font-style   : italic;
+        color        : #A0A0A0;
+      }
+
+      div.contacts div.contact div.as span.intro::after {
+        content: " ";
+      }
+
+      div.contacts div.contact div.as span.screen_names {
+        color: #12182E;
+        font-style: italic;
+        font-weight: normal;
+      }
+
+
+
+
+
+
+
+

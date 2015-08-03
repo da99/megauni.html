@@ -1,0 +1,192 @@
+
+body {
+  background: #fff url('http://megauni.s3.amazonaws.com/bg_overlay.gif');
+  padding: 0 0 0 170px;
+}
+
+#log_out {
+  position: absolute;
+  top: 0;
+  right: 10px;
+}
+
+#intro {
+  padding: 6px 0 6px 170px;
+  margin: 35px 0 10px -170px;
+}
+
+  #intro h2 {
+    font-family: serif;
+    font-size: 180%;
+    font-style: italic;
+    font-weight: normal;
+    color: #FF721A;
+    padding: 0;
+    margin: 0;
+  }
+
+  #intro span {
+    color: #fff;
+  }
+
+  #intro span.label {
+    background: transparent;
+    color: #B7D850;
+    font-weight: bold;
+    padding: 0;
+  }
+
+div.block {
+  margin: 0 10px 10px 0;
+}
+  div.user_submitted div.body {
+    padding: 10px;
+    border: 1px solid #185DAD;
+    border-width: 0 1px 1px 1px;
+    border-radius: 0 0 0 6px;
+  }
+
+#sidebar {
+  width: 150px;
+  padding: 10px 0 0 0;
+  position: absolute;
+  top: 0;
+  left: 10px;
+  background: #fff;
+  border: 1px dashed red;
+  border-width: 0 1px 1px 1px;
+  border-radius: 0 0 5px 5px;
+  font-size: 80%;
+}
+
+  #control_priv_specify {
+    display: none;
+  }
+
+  #sidebar div.options {
+    padding-bottom: 15px;
+  }
+
+  #sidebar button {
+    font-size: 90%;
+    text-transform: uppercase;
+  }
+
+  #sidebar div.opt {
+    padding: 0 5px 0 4px;
+  }
+
+    #sidebar div.privacy {
+    }
+
+    #sidebar div.trash div.buttons {
+      text-align: center;
+    }
+
+  #sidebar div.screen_name div.opt:hover {
+    background: #FFFCD2;
+  }
+
+    #sidebar div.buttons {
+      text-align: right;
+    }
+
+
+  #sidebar div.screen_name {
+  }
+
+  #sidebar div.screen_name div.name {
+    text-align: center;
+  }
+
+    #sidebar span.label {
+      font-size: x-small;
+      padding: 1px 4px;
+    }
+
+    #sidebar span.value {
+      color: #008EED;
+      font-weight: bold;
+    }
+
+  #sidebar div.intro {
+    text-align: center;
+  }
+
+  #sidebar input[type='checkbox'] {
+    margin: 0;
+    padding; 0;
+    margin-right: 4px;
+  }
+
+  #sidebar textarea {
+    width: 90%;
+    font-family: monospace;
+  }
+
+  #sidebar select {
+    width: 94%;
+    margin: 0;
+    padding: 0;
+  }
+
+  #sidebar ul li {
+    padding: 0 0 10px 0;
+  }
+
+  #sidebar div.loading {
+    background: transparent url("/assets/img/med_loading.gif") no-repeat center top;
+  }
+
+    #sidebar div.loading div {
+      visibility: hidden;
+    }
+
+div.block {
+}
+  div.block div.fieldset {
+    text-align: right;
+  }
+
+  div.block div.buttons {
+    text-align: right;
+  }
+
+#create_content {
+}
+
+  #create_content div.body div.fieldset {
+    text-align: left;
+  }
+
+  #create_content div.title input  {
+    color: #000;
+    font-size: 125%;
+    font-family: courier, monospace;
+    font-weight: bold;
+  }
+
+  #create_content textarea {
+    color: #000;
+    width: 90%;
+    font-size: 125%;
+    font-family: courier, monospace;
+    font-weight: bold;
+  }
+
+  #form_create_content {
+    display: none;
+  }
+
+
+#update_content div.body, #article_body div.body {
+  border-width: 1px;
+}
+
+#form_update_content {
+  display: none;
+}
+
+#update_content div.body div.fieldset {
+  text-align: left;
+}
