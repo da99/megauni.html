@@ -44,7 +44,16 @@ shutdown_server () {
 
 jshint () {
   echo -n "=== Running jshint: $1: "
-  ( $0 jshint "$1" && echo -e "${green}Passed${reset_color}" ) || js_failed=""
+  set +e
+  js_hint_results="$($0 jshint "$1" 2>&1)"
+  js_hint_exit_code="$?"
+  set -e
+  if [[ js_hint_exit_code -eq "0" ]]; then
+    echo -e "${green}Passed${reset_color}"
+  else
+    echo -e "${Red}Fail${reset_color}"
+    echo "$js_hint_results"
+  fi
 }
 
 
@@ -129,6 +138,9 @@ case "$action" in
       fi
     done
 
+    iojs render.js clear!
+    iojs render.js Public/applets/*/*.mustache
+
     re='^[0-9]+$'
     start_server
 
@@ -155,11 +167,9 @@ case "$action" in
       fi
 
       if [[ "$path" =~ ".js" ]]; then
-        echo -n "=== Running jshint: "
-        js_pass="true"
-        ( $0 jshint $path && echo -e "${green}Passed${reset_color}" ) || js_pass=""
+        jshint $path
 
-        if [[ ! -z "$js_pass" ]]; then
+        if [[ js_hint_exit_code -eq "0" ]]; then
           if [[ "$file" =~ "server.js" ]]; then
             shutdown_server
             start_server

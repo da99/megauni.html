@@ -2,18 +2,22 @@
 /* jshint esnext: true, undef: true, unused: true */
 /* global  _ : true, require, process  */
 
-var _    = require('lodash');
-var $     = require('cheerio');
-var Hogan = require('hogan.js');
-var co    = require('co');
-var co_fs = require('co-fs');
-var path  = require('path');
+// var $      = require('cheerio');
+var _         = require('lodash');
+var Hogan     = require('hogan.js');
+var co        = require('co');
+var co_fs     = require('co-fs');
+var path      = require('path');
+var templates = require('./templates.js');
 
-var templates = {};
+if (_.last(process.argv) === 'clear!') {
+  templates = {};
+}
+
 var files = _.uniq(
   _.compact(
     _.map(
-      process.argv.concat(['Public/applets/MUE/layout.mustache']),
+      process.argv,
       function (f) {
         if (f.indexOf('.mustache') > 0)
           return path.resolve(f);
@@ -22,8 +26,16 @@ var files = _.uniq(
   )
 );
 
+
+function show_err(err) {
+  console.error(err.stack);
+  console.log('done');
+}
+
+
 co(function *() {
-  var contents = _.compact(
+
+  var contents = yield _.compact(
     _.map(
       files,
       function (v) {
@@ -34,31 +46,40 @@ co(function *() {
     ) // map
   );
 
-  return(yield contents);
-})
-.then(
-  function (r) {
-    _.each(r, function (v, i) { return templates[files[i]] = v.toString();} );
-    return templates;
-  },
-  function (err) { console.error(err.stack); }
-).then(function (t) {
-  var partials = {};
 
-  _.each(t, function (string, file) {
-    var raw = file.split('/').pop().split('.');
+  _.each(contents, function (v, i) {
+    var string = v.toString();
+    var pieces  = files[i].split('/');
+    var dir    = pieces[pieces.length-2];
+    var raw    = pieces[pieces.length-1].split('.');
     raw.pop();
-    partials[raw.join('.')] = string;
+    var name   = raw.join('.');
+
+    var mustache = Hogan.compile(string, {asString: 1});
+    if (!templates[dir])
+      templates[dir] = {};
+    if (!templates[dir][name])
+      templates[dir][name] = {};
+    templates[dir][name].code      = mustache;
+    templates[dir][name].file_name = files[i];
   });
 
-  _.each(partials, function (string, name) {
-    if (name !== 'layout')
-      return;
-    var html = Hogan.compile(string).render(partials, partials);
-    console.log(
-      $(html).find('title').text()
-    );
-  });
-});
+  var templates_mustache = (yield co_fs.readFile('templates.js.mustache')).toString();
 
+  var compiled = Hogan
+  .compile(templates_mustache)
+  .render({code: JSON.stringify(templates)});
+
+  yield co_fs.writeFile('templates.js', compiled);
+
+  if (_.isEmpty(templates)) {
+    console.log("=== Templates cleared.");
+  } else {
+    console.log("=== Template rendered: " + _.map(files, function (f) {
+      return f.match(/[^\/]+\/[^\/]+\.mustache$/)[0];
+    }).join(', '));
+  }
+
+
+}).catch(show_err);
 
