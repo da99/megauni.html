@@ -163,7 +163,7 @@ case "$action" in
       fi
 
       if [[ "$file" =~ ".mustache" ]]; then
-        $0 render_mustache $path
+        iojs render.js $path
       fi
 
       if [[ "$path" =~ ".js" ]]; then
