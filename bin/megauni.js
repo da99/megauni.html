@@ -111,27 +111,36 @@ case "$action" in
 
     ;;
 
+  "render_mustache")
+    iojs bin/render.js "$@"
+    ;;
 
   "watch")
 
-    # === Regular expression:
-    IFS=$'\n'
-    re='^[0-9]+$'
+    js_files="$(echo -e ./*.js specs/*.js)"
 
-    for file in ./*.js
+    # === Regular expression:
+    IFS=$' '
+
+    for file in $js_files
     do
-      jshint "$file"
+      if [[ -f "$file" ]]; then
+        jshint "$file"
+      fi
     done
 
+    re='^[0-9]+$'
     start_server
 
     echo "=== Watching:"
-    inotifywait --quiet --monitor --event close_write  "./" "$0"  | while read CHANGE
+    IFS=$' '
+    inotifywait --quiet --monitor --event close_write  "$0" $js_files Public/applets/*/*.mustache  | while read CHANGE
     do
+      IFS=$'\n'
       dir=$(echo "$CHANGE" | cut -d' ' -f 1)
       op=$(echo "$CHANGE" | cut -d' ' -f 2)
-      file=$(echo "$CHANGE" | cut -d' ' -f 3)
-      path="${dir}$file"
+      path="${dir}$(echo "$CHANGE" | cut -d' ' -f 3)"
+      file="$(basename $path)"
 
       echo -e "=== $CHANGE (${path})"
 
@@ -141,7 +150,11 @@ case "$action" in
         exec "$0" "$orig_args"
       fi
 
-      if [[ "$file" =~ ".js" ]]; then
+      if [[ "$file" =~ ".mustache" ]]; then
+        $0 render_mustache $path
+      fi
+
+      if [[ "$path" =~ ".js" ]]; then
         echo -n "=== Running jshint: "
         js_pass="true"
         ( $0 jshint $path && echo -e "${green}Passed${reset_color}" ) || js_pass=""
