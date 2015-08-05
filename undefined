@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <title></title>
+</head>
+<body>
+  { scripts: '\n 
+  <script src="/applets/homepage/script.js">
+  </script>\n' } Public/index.html
   <link href="/styles/vanilla.reset.css" media="all" rel="stylesheet" type="text/css">
   <link href="/styles/fonts.css" media="all" rel="stylesheet" type="text/css">
   <link href="/styles/otfpoc.css" media="all" rel="stylesheet" type="text/css">
   <link href="/applets/MUE/style.css" media="all" rel="stylesheet" type="text/css">
   <link href="/applets/homepage/style.css" media="all" rel="stylesheet" type="text/css">
-  <title></title>
-</head>
-<body>
   <div class="hidden block" data-show_if="logged_in?">
     <p>You are logged in.</p>
   </div>

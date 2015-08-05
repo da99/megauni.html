@@ -61,16 +61,17 @@ co(function *() {
     var raw    = pieces[pieces.length-1].split('.');
     raw.pop();
     var name   = raw.join('.');
-    var attrs;
+    var attrs = {};
     var dom = $.load(string, {xmlMode: true});
     var configs = dom('config');
 
     configs.each(function (i, node) {
-      attrs     = $(node).attr();
+      var new_attrs     = $(node).attr();
       var html  = $(node).html();
-      var first = _.keys(attrs)[0];
-      if (_.size(attrs) === 1 && _.isEmpty(attrs[first]))
-        attrs[first] = html;
+      var first = _.keys(new_attrs)[0];
+      if (_.size(new_attrs) === 1 && _.isEmpty(new_attrs[first]))
+        new_attrs[first] = html;
+      attrs = _.extend(attrs, new_attrs);
     });
 
     if ( name !== 'layout' ) {
@@ -79,6 +80,7 @@ co(function *() {
       });
 
     }
+
 
     var mustache = Hogan.compile(string, {asString: 1, delimiters: '[[ ]]'});
 

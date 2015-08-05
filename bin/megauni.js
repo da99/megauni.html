@@ -38,6 +38,7 @@ render_all () {
 
 render_file () {
   local file="$1"
+  echo "=== Rendering: $file"
   local results="$(iojs render.js $layout $file)"
   local html="$(echo "$results" | head -n 1)"
   local contents="$(echo "$results" | tail -n +2)"
@@ -99,7 +100,7 @@ case "$action" in
     for f in ./Public/applets/*/*.styl
     do
       if [[ ! "$f" =~ "vars.styl" ]] ; then
-        bin/megauni stylus $f
+        bin/megauni.js stylus $f
       fi
     done
     ;;

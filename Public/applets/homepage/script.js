@@ -1,4 +1,6 @@
 
+var MegaUni;
 $(function () {
-  Applet.run({"logged_in?" : false});
+  MegaUni = new Applet(_.values(Applet.funcs));
+  MegaUni.run('data', {"logged_in?" : false});
 });
