@@ -6,13 +6,15 @@
   <link href="/styles/otfpoc.css" media="all" rel="stylesheet" type="text/css">
   <link href="/applets/MUE/style.css" media="all" rel="stylesheet" type="text/css">
   <link href="/applets/homepage/style.css" media="all" rel="stylesheet" type="text/css">
-  <title></title>
+  <title>megaUNI Home</title>
 </head>
 <body>
-  <!-- title : "megaUNI Home" -->
+  <!-- title
+      megaUNI Home
+    -->
   <!-- scripts
       <script src="/applets/homepage/script.js"></script>
-    //-->
+    -->
   <div class="hidden block" data-show_if="logged_in?">
     <p>You are logged in.</p>
   </div>
@@ -55,11 +57,9 @@
       </form>
     </div>
   </div>
-  <script id="Welcome" type="text/applet">
-  </script> 
-  <script id="New_Session" type="text/applet">
-  </script> 
-  <script id="New_Customer" type="text/applet">
+  <script type="text/template">
+    &#x3C;!-- template --&#x3E;
+          &#x3C;div&#x3E;code&#x3C;/div&#x3E;
   </script>
   <div class="block" id="intro">
     <h1 class="site"><span class="main">mega</span><span class="sub">UNI</span></h1>
@@ -73,6 +73,14 @@
       <p><span>Logo font:</span> <a href="http://openfontlibrary.org/en/font/otfpoc">Aghja</a></p>
       <p><span>Palettes:</span> <a href="http://www.colourlovers.com/lover/dvdcpd">dvdcpd</a><a href="http://www.colourlovers.com/palette/154398/bedouin">shari_foru</a></p>
     </div>
-  </div><script src="/vendor/bower/jquery/dist/jquery.min.js"></script> <script src="/vendor/bower/lodash/lodash.min.js"></script> <script src="/vendor/bower/da99.applet.js/applet.js"></script>
+  </div>
+  <script src="/vendor/bower/jquery/dist/jquery.min.js">
+  </script> 
+  <script src="/vendor/bower/lodash/lodash.min.js">
+  </script> 
+  <script src="/vendor/bower/da99.applet.js/applet.js">
+  </script> 
+  <script src="/applets/homepage/script.js">
+  </script>
 </body>
 </html>

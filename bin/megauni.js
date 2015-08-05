@@ -42,8 +42,11 @@ render_file () {
   local results="$(iojs render.js $layout $file)"
   local html="$(echo "$results" | head -n 1)"
   local contents="$(echo "$results" | tail -n +2)"
-  ( echo "$contents" | tidy -config tidy.configs.txt -output "$html" ) || echo "=== FAIL: $html"
-  echo "=== Wrote: $html"
+  local html_valid="true"
+  ( echo "$contents" | tidy -config tidy.configs.txt -output "$html" ) || html_valid=""
+  if [[ ! -z "$html_valid" ]]; then
+    echo "=== Wrote: $html"
+  fi
 }
 
 

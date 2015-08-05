@@ -37,7 +37,7 @@ function show_err(err) {
 
 function get_comments(original_html) {
   var html;
-  var has_body = original_html.match(/\<body/i);
+  var has_body = original_html.match(/<body/i);
 
   if (!has_body)
     html = "<html><body>" + original_html + "</body></html>";
@@ -126,17 +126,18 @@ co(function *() {
 
       var final_html = compiled_to_compiler(layout.code).render(meta.attrs, {markup: compiled_to_compiler(meta.code)});
 
-      var dom = $.load(final_html);
-      dom('config').remove();
-      _.each(dom('script[type="text/applet"]'), function (node) {
-        $(node).text(he.encode($(node).html()));
+      var dom = $(final_html);
+      _.each(dom.find('script[type]'), function (node) {
+        if (node.attribs.type.match(/javascript/i))
+          return;
+        $(node).text(he.encode($(node).html() || ''));
       });
 
       switch (dir + '/' + name) {
         case 'homepage/markup':
           // new_files.push(['Public/index.html', dom.html()]);
           console.log('Public/index.html');
-          console.log(dom.html());
+          console.log($.html(dom));
         break;
       } // === switch dir + '/' + name
     });
