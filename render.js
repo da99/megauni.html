@@ -1,5 +1,5 @@
 "use strict";
-/* jshint esnext: true, undef: true, unused: true */
+/* jshint evil : true, esnext: true, undef: true, unused: true */
 /* global $ : true, _ : true, require, process  */
 
 var $         = require('cheerio');
@@ -11,7 +11,7 @@ var path      = require('path');
 var templates = require('./templates.js');
 var layout    = null;
 
-_.each(templates, function (files, dir) {
+_.each(templates, function (files) {
   _.each(files, function (meta, name) {
     if (name === 'layout')
       layout = meta;
@@ -79,7 +79,7 @@ co(function *() {
       string = dom.html();
     });
 
-    var mustache = Hogan.compile(string, {asString: 1});
+    var mustache = Hogan.compile(string, {asString: 1, delimiters: '<% %>'});
 
     if (!templates[dir])
       templates[dir] = {};
@@ -108,7 +108,6 @@ co(function *() {
         return;
 
       var final_html = compiled_to_compiler(layout.code).render(meta.attrs, {markup: compiled_to_compiler(meta.code)});
-      var target;
 
       switch (dir + '/' + name) {
         case 'homepage/markup':

@@ -40,7 +40,7 @@
                   <div class="field screen_name"><label for="NEW_CUSTOMER_SCREEN_NAME">Screen name:</label><input name="screen_name" type="text" value=""/></div>
                   <div class="field pswd"><label for="NEW_CUSTOMER_PASS_PHRASE"><span class="main">Pass phrase</span><span class="sub"> (for better security, use spaces and words)</span><span class="main">:</span></label><input name="pswd" type="password" value=""/></div>
                   <div class="field confirm_pass_phrase"><label for="NEW_CUSTOMER_CONFIRM_PASS_PHRASE"><span class="main">Re-type the pass phrase:</span></label><input name="confirm_pass_word" type="password" value=""/></div>
-                  <div class="buttons"><input name="_csrf" type="hidden" value=""/><button class="submit">Create Account</button></div>
+                  <div class="buttons"><input name="_csrf" type="hidden" value="{{_csrf}}"/><button class="submit">Create Account</button></div>
                 </div>
               </form>
             </div>

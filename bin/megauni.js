@@ -4,6 +4,7 @@
 #
 action="$1"
 orig_args="$@"
+layout="Public/applets/MUE/layout.mustache"
 shift
 set -u -e -o pipefail
 
@@ -163,7 +164,12 @@ case "$action" in
       fi
 
       if [[ "$file" =~ ".mustache" ]]; then
-        iojs render.js $path
+        if [[ "$file" == "layout.mustache" ]]; then
+          iojs render.js clear!
+          iojs render.js "$layout" Public/applets/*/*.mustache
+        else
+          iojs render.js "$layout" "$path"
+        fi
       fi
 
       if [[ "$path" =~ ".js" ]]; then
