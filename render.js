@@ -11,7 +11,7 @@ var co_fs     = require('co-fs');
 var path      = require('path');
 var templates = {};
 var layout    = null;
-
+var he        = require('he');
 
 if (_.last(process.argv) === 'clear!') {
   templates = {};
@@ -34,6 +34,34 @@ function show_err(err) {
   console.error(err.stack);
   console.log('done');
 }
+
+function get_comments(original_html) {
+  var html;
+  var has_body = original_html.match(/\<body/i);
+
+  if (!has_body)
+    html = "<html><body>" + original_html + "</body></html>";
+  else
+    html = original_html;
+
+
+  return _.compact(_.map($('body', html).contents(), function (node) {
+    if (node.type === 'comment')
+      return node.data;
+  }));
+}
+
+function get_attrs(html) {
+  var attrs = {};
+  _.each(get_comments(html), function (data) {
+    var lines  = data.split("\n");
+    var key    = _.trim(lines.shift());
+    attrs[key] = _.trim(lines.join("\n"));
+  });
+
+  return(attrs);
+}
+
 
 var compiled_to_compiler = function (code) {
   var f = new Function('Hogan', 'return new Hogan.Template(' + code + ');' );
@@ -61,26 +89,9 @@ co(function *() {
     var raw    = pieces[pieces.length-1].split('.');
     raw.pop();
     var name   = raw.join('.');
-    var attrs = {};
-    var dom = $.load(string, {xmlMode: true});
-    var configs = dom('config');
 
-    configs.each(function (i, node) {
-      var new_attrs     = $(node).attr();
-      var html  = $(node).html();
-      var first = _.keys(new_attrs)[0];
-      if (_.size(new_attrs) === 1 && _.isEmpty(new_attrs[first]))
-        new_attrs[first] = html;
-      attrs = _.extend(attrs, new_attrs);
-    });
 
-    if ( name !== 'layout' ) {
-      _.each(dom('script[type="text/applet"]'), function (node) {
-        $(node).text(he.encode($(node).html()));
-      });
-
-    }
-
+    var attrs = get_attrs(string);
 
     var mustache = Hogan.compile(string, {asString: 1, delimiters: '[[ ]]'});
 
@@ -115,7 +126,7 @@ co(function *() {
 
       var final_html = compiled_to_compiler(layout.code).render(meta.attrs, {markup: compiled_to_compiler(meta.code)});
 
-      var dom = $.load(final_html, {xmlMode: true});
+      var dom = $.load(final_html);
       dom('config').remove();
       _.each(dom('script[type="text/applet"]'), function (node) {
         $(node).text(he.encode($(node).html()));
