@@ -119,7 +119,7 @@ co(function *() {
 
   // var new_files = [];
   // === Render templates to html files:
-  _.each(templates, function (files, dir) {
+  _.each(templates, function (files) {
     _.each(files, function (meta, name) {
       if (name === 'layout')
         return;
@@ -133,13 +133,11 @@ co(function *() {
         $(node).text(he.encode($(node).html() || ''));
       });
 
-      switch (dir + '/' + name) {
-        case 'homepage/markup':
-          // new_files.push(['Public/index.html', dom.html()]);
-          console.log('Public/index.html');
-          console.log($.html(dom));
-        break;
-      } // === switch dir + '/' + name
+      if (meta.attrs['PUBLIC FILE']) {
+        console.log('Public' + meta.attrs['PUBLIC FILE']);
+        console.log($.html(dom));
+      }
+
     });
   });
 

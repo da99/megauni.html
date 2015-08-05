@@ -40,12 +40,20 @@ render_file () {
   local file="$1"
   echo "=== Rendering: $file"
   local results="$(iojs render.js $layout $file)"
-  local html="$(echo "$results" | head -n 1)"
+  local html_file="$(echo "$results" | head -n 1)"
   local contents="$(echo "$results" | tail -n +2)"
   local html_valid="true"
-  ( echo "$contents" | tidy -config tidy.configs.txt -output "$html" ) || html_valid=""
+  local html_dir="$(dirname $html_file)"
+
+  if [[ ! -d "$html_dir" ]]; then
+    mkdir -p "$html_dir"
+    echo "=== Created dir: ${html_dir}"
+  fi
+
+  ( echo "$contents" | tidy -config tidy.configs.txt -output "$html_file" ) || html_valid=""
+
   if [[ ! -z "$html_valid" ]]; then
-    echo "=== Wrote: $html"
+    echo "=== Wrote: $html_file"
   fi
 }
 
