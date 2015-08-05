@@ -13,6 +13,8 @@
     "co": "^4.6.0",
     "co-fs": "^1.2.0",
     "hogan.js": "git+https://github.com/twitter/hogan.js.git",
+    "jquery": "^2.1.4",
+    "jsdom": "^5.6.1",
     "jshint": "^2.8.0",
     "koa": "^0.21.0",
     "koa-logger": "^1.2.2",

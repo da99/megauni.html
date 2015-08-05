@@ -1,6 +1,6 @@
 "use strict";
 /* jshint undef: true, unused: true */
-/* global MegaUni, describe, it, expect, beforeEach */
+/* global describe, it, expect, beforeEach */
 
 // function tag_names(dom) {
   // return _.map($(dom), function (node) {
@@ -8,12 +8,15 @@
   // });
 // }
 
-var m;
 
 describe('megauni.js:', function () {
 
   beforeEach(function () {
     $('#THE_STAGE').empty();
+
+    it('does something', function () {
+      expect(true);
+    }); // === it does something
   });
 
 

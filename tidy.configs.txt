@@ -2,3 +2,4 @@ tidy-mark: no
 output-html: yes
 indent: auto
 wrap: 0
+quiet: yes

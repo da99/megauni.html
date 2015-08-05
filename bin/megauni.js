@@ -27,6 +27,25 @@ Green='\e[0;32m'
 Orange='\e[0;33m'
 # ==============================================================
 
+render_all () {
+  for file in Public/applets/*/*.mustache
+  do
+    if [[ ! ( "$file" =~ "layout.mustache" ) ]]; then
+      render_file "$file"
+    fi
+  done
+}
+
+render_file () {
+  local file="$1"
+  local results="$(iojs render.js $layout $file)"
+  local html="$(echo "$results" | head -n 1)"
+  local contents="$(echo "$results" | tail -n +2)"
+  ( echo "$contents" | tidy -config tidy.configs.txt -output "$html" ) || echo "=== FAIL: $html"
+  echo "=== Wrote: $html"
+}
+
+
 start_server () {
   (iojs server.js) &
   server_pid="$!"
@@ -122,7 +141,7 @@ case "$action" in
     ;;
 
   "render_mustache")
-    iojs bin/render.js "$@"
+    render_file "$@"
     ;;
 
   "watch")
@@ -139,15 +158,14 @@ case "$action" in
       fi
     done
 
-    iojs render.js clear!
-    iojs render.js Public/applets/*/*.mustache
+    render_all
 
     re='^[0-9]+$'
     start_server
 
     echo "=== Watching:"
     IFS=$' '
-    inotifywait --quiet --monitor --event close_write  "$0" $js_files Public/applets/*/*.mustache  | while read CHANGE
+    inotifywait --quiet --monitor --event close_write  "$0" $js_files Public/applets/*/*.mustache | while read CHANGE
     do
       IFS=$'\n'
       dir=$(echo "$CHANGE" | cut -d' ' -f 1)
@@ -157,6 +175,10 @@ case "$action" in
 
       echo -e "=== $CHANGE (${path})"
 
+      if [[ "$path" =~ ".html" ]]; then
+        tidy -config tidy.configs.txt -output "$path" "$path"|| echo "FAILED"
+      fi
+
       if [[ "$path" =~ "$0" ]]; then
         echo "=== Reloading..."
         shutdown_server
@@ -165,10 +187,9 @@ case "$action" in
 
       if [[ "$file" =~ ".mustache" ]]; then
         if [[ "$file" == "layout.mustache" ]]; then
-          iojs render.js clear!
-          iojs render.js "$layout" Public/applets/*/*.mustache
+          render_all
         else
-          iojs render.js "$layout" "$path"
+          render_file "$path"
         fi
       fi
 
@@ -179,6 +200,10 @@ case "$action" in
           if [[ "$file" =~ "server.js" ]]; then
             shutdown_server
             start_server
+          fi
+
+          if [[ "$file" == "render.js" ]]; then
+            render_all
           fi
         fi
 
