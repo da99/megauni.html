@@ -135,8 +135,11 @@ co(function *() {
 
       if (meta.attrs['PUBLIC FILE']) {
         console.log('Public' + meta.attrs['PUBLIC FILE']);
-        console.log($.html(dom));
+      } else {
+        console.log(meta.file_name);
       }
+
+      console.log($.html(dom));
 
     });
   });
