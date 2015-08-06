@@ -158,7 +158,7 @@ case "$action" in
 
   "watch")
 
-    js_files="$(echo -e ./*.js specs/*.js)"
+    js_files="$(echo -e ./*.js specs/*.js Public/applets/*/*.js)"
 
     # === Regular expression:
     IFS=$' '
@@ -173,7 +173,7 @@ case "$action" in
     render_all
 
     re='^[0-9]+$'
-    start_server
+    # start_server
 
     echo "=== Watching:"
     IFS=$' '
@@ -191,11 +191,11 @@ case "$action" in
         tidy -config tidy.configs.txt -output "$path" "$path"|| echo "FAILED"
       fi
 
-      if [[ "$path" =~ "$0" ]]; then
-        echo "=== Reloading..."
-        shutdown_server
-        exec "$0" "$orig_args"
-      fi
+      # if [[ "$path" =~ "$0" ]]; then
+        # echo "=== Reloading..."
+        # shutdown_server
+        # exec "$0" "$orig_args"
+      # fi
 
       if [[ "$file" =~ ".mustache" ]]; then
         if [[ "$file" == "layout.mustache" ]]; then
@@ -209,10 +209,10 @@ case "$action" in
         jshint $path
 
         if [[ js_hint_exit_code -eq "0" ]]; then
-          if [[ "$file" =~ "server.js" ]]; then
-            shutdown_server
-            start_server
-          fi
+          # if [[ "$file" =~ "server.js" ]]; then
+            # shutdown_server
+            # start_server
+          # fi
 
           if [[ "$file" == "render.js" ]]; then
             render_all
