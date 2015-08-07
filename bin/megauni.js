@@ -2,8 +2,13 @@
 # -*- bash -*-
 #
 #
+
+# Array is used.
+# Inspired from: http://stackoverflow.com/a/3811396/841803
+restart_args=("$@")
+restart_args+=('no_server')
+
 action="$1"
-orig_args="$@"
 layout="Public/applets/MUE/layout.mustache"
 shift
 set -u -e -o pipefail
@@ -88,12 +93,22 @@ jshint () {
   fi
 }
 
+kill_all () {
+  code="$1"
+  echo "" 1>&2
+  echo  "=== Exit Code: $code" 1>&2
+  echo  "=== Sending SIGINT process group: -$$" 1>&2
+  jobs -p
+  kill -SIGINT -$$
+  return $code
+}
 
 case "$action" in
 
   "help")
     echo ""
     echo "  $ bin/megauni.js  watch"
+    echo "  $ bin/megauni.js  watch   fast"
     echo "  $ bin/megauni.js  deploy"
     echo ""
     echo "  $ bin/megauni.js  render_stylus"
@@ -157,27 +172,48 @@ case "$action" in
     ;;
 
   "watch")
+    trap 'kill_all $?' EXIT
+
+    do_linting="true"
+    do_server="true"
+    if [[ "$@" =~ "fast" ]]; then
+      do_linting=""
+    fi
+
+    if [[ "$@" =~ "no_server" ]]; then
+      do_server=""
+    fi
 
     js_files="$(echo -e ./*.js specs/*.js Public/applets/*/*.js)"
 
     # === Regular expression:
     IFS=$' '
 
-    for file in $js_files
-    do
-      if [[ -f "$file" ]]; then
-        jshint "$file"
-      fi
-    done
+    if [[ ! -z "$do_linting" ]]; then
 
-    render_all
+      for file in $js_files
+      do
+        if [[ -f "$file" ]]; then
+          jshint "$file"
+        fi
+      done
+
+      render_all
+    fi
+
 
     re='^[0-9]+$'
-    # start_server
+    if [[ ! -z "$do_server" ]]; then
+      (
+        cd ../megauni
+        bin/megauni watch
+      ) &
+    fi
 
     echo "=== Watching:"
+
     IFS=$' '
-    inotifywait --quiet --monitor --event close_write  "$0" $js_files Public/applets/*/*.mustache | while read CHANGE
+    while read CHANGE
     do
       IFS=$'\n'
       dir=$(echo "$CHANGE" | cut -d' ' -f 1)
@@ -191,11 +227,10 @@ case "$action" in
         tidy -config tidy.configs.txt -output "$path" "$path"|| echo "FAILED"
       fi
 
-      # if [[ "$path" =~ "$0" ]]; then
-        # echo "=== Reloading..."
-        # shutdown_server
-        # exec "$0" "$orig_args"
-      # fi
+      if [[ "$path" =~ "$0" ]]; then
+        echo "=== Reloading: $0 ${restart_args[@]}"
+        sfsdf exec $0 ${restart_args[@]}
+      fi
 
       if [[ "$file" =~ ".mustache" ]]; then
         if [[ "$file" == "layout.mustache" ]]; then
@@ -205,14 +240,14 @@ case "$action" in
         fi
       fi
 
-      if [[ "$path" =~ ".js" ]]; then
+      if [[ "$path" =~ ".js" && ! "$path" =~ "bin/" ]]; then
         jshint $path
 
         if [[ js_hint_exit_code -eq "0" ]]; then
-          # if [[ "$file" =~ "server.js" ]]; then
-            # shutdown_server
-            # start_server
-          # fi
+          if [[ "$file" =~ "server.js" ]]; then
+            shutdown_server
+            start_server
+          fi
 
           if [[ "$file" == "render.js" ]]; then
             render_all
@@ -222,7 +257,7 @@ case "$action" in
         echo ""
 
       fi
-    done
+    done < <(inotifywait --quiet --monitor --event close_write  "$0" $js_files Public/applets/*/*.mustache)
 
     ;;
 
