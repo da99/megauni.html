@@ -260,8 +260,6 @@ case "$action" in
     ) &
     echo "=== sub-shell process: $!"
     echo "=== process group: $$"
-    # if [[ ! -z "$do_server" ]]; then
-    # fi
 
     $0 _watch ${restart_args[@]}
 
