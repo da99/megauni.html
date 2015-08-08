@@ -22,12 +22,12 @@ green_bg=$(tput setb 2)
 white=$(tput setaf 7)
 bold_white_on_green=$(tput bold)${white}${green_bg}
 bold_white=$(tput bold)${white}
-reset_color=$(tput sgr0)
+RESET_COLOR=$(tput sgr0)
 
 # FROM: http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 Color_Off='\e[0m'
 BRed='\e[1;31m'
-Red='\e[0;31m'
+RED='\e[0;31m'
 Green='\e[0;32m'
 Orange='\e[0;33m'
 # ==============================================================
@@ -63,21 +63,6 @@ render_file () {
 }
 
 
-start_server () {
-  (iojs server.js) &
-  server_pid="$!"
-  echo "=== Started server: $server_pid - $$"
-}
-
-shutdown_server () {
-  if [[ ! -z "$server_pid"  ]]; then
-    if kill -0 "$server_pid" 2>/dev/null; then
-      echo "=== Shutting server down: $server_pid - $$ ..."
-      kill -SIGINT "$server_pid"
-      server_pid=""
-    fi
-  fi
-}
 
 jshint () {
   echo -n "=== Running jshint: $1: "
@@ -86,22 +71,28 @@ jshint () {
   js_hint_exit_code="$?"
   set -e
   if [[ js_hint_exit_code -eq "0" ]]; then
-    echo -e "${green}Passed${reset_color}"
+    echo -e "${green}Passed${RESET_COLOR}"
   else
-    echo -e "${Red}Fail${reset_color}"
+    echo -e "${RED}Fail${RESET_COLOR}"
     echo "$js_hint_results"
   fi
 }
 
-kill_all () {
-  code="$1"
-  echo "" 1>&2
-  echo  "=== Exit Code: $code" 1>&2
-  echo  "=== Sending SIGINT process group: -$$" 1>&2
-  jobs -p
-  kill -SIGINT -$$
-  return $code
+on_exit () {
+  echo -e "${Green}=== Waiting in ${$}...${RESET_COLOR}"
+  wait
+  echo -e "${Green}=== Done: ${$}${RESET_COLOR}"
 }
+
+on_err () {
+  exit_code="$1"
+  line="$2"
+  echo -e    "!!! ERROR: line: ${RED}${line}${RESET_COLOR} exit: ${RED}${exit_code}${RESET_COLOR}"
+  echo -e    "!!! Running: KILL -SIGINT -$$"
+  trap "exit ${exit_code}" INT
+  kill -SIGINT -$$
+}
+
 
 case "$action" in
 
@@ -171,8 +162,13 @@ case "$action" in
     render_file "$@"
     ;;
 
+  "procs")
+    ps aux | grep -E "node|megauni|pm2|inotif" --color
+    ;;
+
   "watch")
-    trap 'kill_all $?' EXIT
+    trap 'on_err $? $LINENO' ERR
+    trap 'on_exit' EXIT
 
     do_linting="true"
     do_server="true"
@@ -208,6 +204,8 @@ case "$action" in
         cd ../megauni
         bin/megauni watch
       ) &
+      echo "=== process: $!"
+      echo "=== process group: $$"
     fi
 
     echo "=== Watching:"
@@ -229,7 +227,7 @@ case "$action" in
 
       if [[ "$path" =~ "$0" ]]; then
         echo "=== Reloading: $0 ${restart_args[@]}"
-        sfsdf exec $0 ${restart_args[@]}
+        exec $0 ${restart_args[@]}
       fi
 
       if [[ "$file" =~ ".mustache" ]]; then
@@ -244,11 +242,6 @@ case "$action" in
         jshint $path
 
         if [[ js_hint_exit_code -eq "0" ]]; then
-          if [[ "$file" =~ "server.js" ]]; then
-            shutdown_server
-            start_server
-          fi
-
           if [[ "$file" == "render.js" ]]; then
             render_all
           fi
@@ -257,7 +250,13 @@ case "$action" in
         echo ""
 
       fi
-    done < <(inotifywait --quiet --monitor --event close_write  "$0" $js_files Public/applets/*/*.mustache)
+    done < <(
+     inotifywait \
+       --quiet   \
+       --monitor \
+       --event close_write \
+       "$0" $js_files Public/applets/*/*.mustache
+     )
 
     ;;
 
