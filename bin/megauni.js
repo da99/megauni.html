@@ -6,7 +6,7 @@
 # Array is used.
 # Inspired from: http://stackoverflow.com/a/3811396/841803
 restart_args=("$@")
-restart_args+=('no_server')
+# restart_args+=('no_server')
 
 action="$1"
 layout="Public/applets/MUE/layout.mustache"
@@ -166,50 +166,9 @@ case "$action" in
     ps aux | grep -E "node|megauni|pm2|inotif" --color
     ;;
 
-  "watch")
-    trap 'on_err $? $LINENO' ERR
-    trap 'on_exit' EXIT
-
-    do_linting="true"
-    do_server="true"
-    if [[ "$@" =~ "fast" ]]; then
-      do_linting=""
-    fi
-
-    if [[ "$@" =~ "no_server" ]]; then
-      do_server=""
-    fi
-
+  "_watch")
     js_files="$(echo -e ./*.js specs/*.js Public/applets/*/*.js)"
-
-    # === Regular expression:
-    IFS=$' '
-
-    if [[ ! -z "$do_linting" ]]; then
-
-      for file in $js_files
-      do
-        if [[ -f "$file" ]]; then
-          jshint "$file"
-        fi
-      done
-
-      render_all
-    fi
-
-
-    re='^[0-9]+$'
-    if [[ ! -z "$do_server" ]]; then
-      (
-        cd ../megauni
-        bin/megauni watch
-      ) &
-      echo "=== process: $!"
-      echo "=== process group: $$"
-    fi
-
     echo "=== Watching:"
-
     IFS=$' '
     while read CHANGE
     do
@@ -227,6 +186,8 @@ case "$action" in
 
       if [[ "$path" =~ "$0" ]]; then
         echo "=== Reloading: $0 ${restart_args[@]}"
+        # setsid kill -- -SIGINT -$$
+        # wait
         exec $0 ${restart_args[@]}
       fi
 
@@ -257,6 +218,52 @@ case "$action" in
        --event close_write \
        "$0" $js_files Public/applets/*/*.mustache
      )
+
+    ;;
+
+  "watch")
+    echo "=== group: $$"
+    trap 'on_err $? $LINENO' ERR
+    trap 'on_exit' EXIT
+
+    do_linting="true"
+    do_server="true"
+    if [[ "$@" =~ "fast" ]]; then
+      do_linting=""
+    fi
+
+    if [[ "$@" =~ "no_server" ]]; then
+      do_server=""
+    fi
+
+
+    # === Regular expression:
+    IFS=$' '
+
+    if [[ ! -z "$do_linting" ]]; then
+
+      for file in $js_files
+      do
+        if [[ -f "$file" ]]; then
+          jshint "$file"
+        fi
+      done
+
+      render_all
+    fi
+
+
+    re='^[0-9]+$'
+    (
+      cd ../megauni
+      bin/megauni watch
+    ) &
+    echo "=== sub-shell process: $!"
+    echo "=== process group: $$"
+    # if [[ ! -z "$do_server" ]]; then
+    # fi
+
+    $0 _watch ${restart_args[@]}
 
     ;;
 
