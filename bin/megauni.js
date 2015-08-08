@@ -152,7 +152,7 @@ case "$action" in
     }
 
 
-    echo "=== Watching $(basename $0) (proc group ${$})..."
+    echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc group ${$})..."
     IFS=$' '
     while read CHANGE
     do
@@ -170,7 +170,7 @@ case "$action" in
 
       if [[ "$path" =~ "$0" ]]; then
         echo ""
-        echo "=== Reloading: $0 ${restart_args[@]}"
+        echo "=== ${GREEN}Reloading${RESET_COLOR}: $0 ${restart_args[@]}"
         exec $0 ${restart_args[@]}
       fi
 
@@ -207,9 +207,9 @@ case "$action" in
   "watch")
     on_exit () {
       echo ""
-      echo -e "${GREEN}=== Waiting for child/bg procs for group ${$}...${RESET_COLOR}"
+      echo -e "=== ${GREEN}Waiting${RESET_COLOR} for proc group: ${$}..."
       wait
-      echo -e "${GREEN}=== Done.${RESET_COLOR}"
+      echo -e "=== ${GREEN}Done${RESET_COLOR} ($(basename $0) $$)"
     }
 
     on_err () {
