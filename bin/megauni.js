@@ -6,92 +6,28 @@
 # Array is used.
 # Inspired from: http://stackoverflow.com/a/3811396/841803
 restart_args=("$@")
-# restart_args+=('no_server')
 
 action="$1"
 layout="Public/applets/MUE/layout.mustache"
 shift
+
 set -u -e -o pipefail
 
 # ==============================================================
 # === Color codes: =============================================
 
 # FROM: http://www.ibm.com/developerworks/aix/library/au-learningtput/
-green=$(tput setaf 2)
-green_bg=$(tput setb 2)
-white=$(tput setaf 7)
-bold_white_on_green=$(tput bold)${white}${green_bg}
-bold_white=$(tput bold)${white}
-RESET_COLOR=$(tput sgr0)
-
 # FROM: http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
-Color_Off='\e[0m'
-BRed='\e[1;31m'
+GREEN=$(tput setaf 2)
+GREEN_BG=$(tput setb 2)
+WHITE=$(tput setaf 7)
+BOLD_WHITE_ON_GREEN=$(tput bold)${WHITE}${GREEN_BG}
+BOLD_WHITE=$(tput bold)${WHITE}
+RESET_COLOR=$(tput sgr0)
+ORANGE='\e[0;33m'
 RED='\e[0;31m'
-Green='\e[0;32m'
-Orange='\e[0;33m'
+BG_RED='\e[1;31m'
 # ==============================================================
-
-render_all () {
-  for file in Public/applets/*/*.mustache
-  do
-    if [[ ! ( "$file" =~ "layout.mustache" ) ]]; then
-      render_file "$file"
-    fi
-  done
-}
-
-render_file () {
-  local file="$1"
-  echo "=== Rendering: $file"
-  local results="$(iojs render.js $layout $file)"
-  local html_file="$(echo "$results" | head -n 1)"
-  local contents="$(echo "$results" | tail -n +2)"
-  local html_valid="true"
-  local html_dir="$(dirname $html_file)"
-
-  if [[ ! -d "$html_dir" ]]; then
-    mkdir -p "$html_dir"
-    echo "=== Created dir: ${html_dir}"
-  fi
-
-  ( echo "$contents" | tidy -config tidy.configs.txt -output "$html_file" ) || html_valid=""
-
-  if [[ ! -z "$html_valid" ]]; then
-    echo "=== Wrote: $html_file"
-  fi
-}
-
-
-
-jshint () {
-  echo -n "=== Running jshint: $1: "
-  set +e
-  js_hint_results="$($0 jshint "$1" 2>&1)"
-  js_hint_exit_code="$?"
-  set -e
-  if [[ js_hint_exit_code -eq "0" ]]; then
-    echo -e "${green}Passed${RESET_COLOR}"
-  else
-    echo -e "${RED}Fail${RESET_COLOR}"
-    echo "$js_hint_results"
-  fi
-}
-
-on_exit () {
-  echo -e "${Green}=== Waiting in ${$}...${RESET_COLOR}"
-  wait
-  echo -e "${Green}=== Done: ${$}${RESET_COLOR}"
-}
-
-on_err () {
-  exit_code="$1"
-  line="$2"
-  echo -e    "!!! ERROR: line: ${RED}${line}${RESET_COLOR} exit: ${RED}${exit_code}${RESET_COLOR}"
-  echo -e    "!!! Running: KILL -SIGINT -$$"
-  trap "exit ${exit_code}" INT
-  kill -SIGINT -$$
-}
 
 
 case "$action" in
@@ -103,6 +39,8 @@ case "$action" in
     echo "  $ bin/megauni.js  deploy"
     echo ""
     echo "  $ bin/megauni.js  render_stylus"
+    echo "  $ bin/megauni.js  render_html    file/path/mustache.mustache"
+    echo "  $ bin/megauni.js  render_all_html"
     echo "  $ bin/megauni.js  render   path/to/file.rb"
     echo ""
     exit 0
@@ -158,17 +96,63 @@ case "$action" in
 
     ;;
 
-  "render_mustache")
-    render_file "$@"
+  "render_all_html")
+    for file in Public/applets/*/*.mustache
+    do
+      if [[ ! ( "$file" =~ "layout.mustache" ) ]]; then
+        $0 render_html "$file"
+      fi
+    done
+    ;;
+
+  "render_html")
+    render_html () {
+      local file="$1"
+      echo "=== Rendering: $file"
+      local results="$(iojs render.js $layout $file)"
+      local html_file="$(echo "$results" | head -n 1)"
+      local contents="$(echo "$results" | tail -n +2)"
+      local html_valid="true"
+      local html_dir="$(dirname $html_file)"
+
+      if [[ ! -d "$html_dir" ]]; then
+        mkdir -p "$html_dir"
+        echo "=== Created dir: ${html_dir}"
+      fi
+
+      ( echo "$contents" | tidy -config tidy.configs.txt -output "$html_file" ) || html_valid=""
+
+      if [[ ! -z "$html_valid" ]]; then
+        echo "=== Wrote: $html_file"
+      fi
+    }
+
+    render_html "$@"
     ;;
 
   "procs")
     ps aux | grep -E "node|megauni|pm2|inotif" --color
     ;;
 
-  "_watch")
+  "__watch")
     js_files="$(echo -e ./*.js specs/*.js Public/applets/*/*.js)"
-    echo "=== Watching:"
+
+    jshint () {
+      echo -n "=== Running jshint: $1: "
+      set +e
+      js_hint_results="$($0 jshint "$1" 2>&1)"
+      js_hint_exit_code="$?"
+      set -e
+      if [[ js_hint_exit_code -eq "0" ]]; then
+        echo -e "${GREEN}Passed${RESET_COLOR}"
+      else
+        echo -e "${RED}Fail${RESET_COLOR}"
+        echo "$js_hint_results"
+      fi
+    }
+
+
+    echo "=== Watching $(basename $0) (proc group ${$})..."
     IFS=$' '
     while read CHANGE
     do
@@ -185,17 +169,16 @@ case "$action" in
       fi
 
       if [[ "$path" =~ "$0" ]]; then
+        echo ""
         echo "=== Reloading: $0 ${restart_args[@]}"
-        # setsid kill -- -SIGINT -$$
-        # wait
         exec $0 ${restart_args[@]}
       fi
 
       if [[ "$file" =~ ".mustache" ]]; then
         if [[ "$file" == "layout.mustache" ]]; then
-          render_all
+          $0 render_all_html
         else
-          render_file "$path"
+          $0 render_html "$path"
         fi
       fi
 
@@ -204,7 +187,7 @@ case "$action" in
 
         if [[ js_hint_exit_code -eq "0" ]]; then
           if [[ "$file" == "render.js" ]]; then
-            render_all
+            $0 render_all_html
           fi
         fi
 
@@ -222,9 +205,24 @@ case "$action" in
     ;;
 
   "watch")
-    echo "=== group: $$"
+    on_exit () {
+      echo ""
+      echo -e "${GREEN}=== Waiting for child/bg procs for group ${$}...${RESET_COLOR}"
+      wait
+      echo -e "${GREEN}=== Done.${RESET_COLOR}"
+    }
+
+    on_err () {
+      exit_code="$1"
+      line="$2"
+      echo -e    "!!! ERROR: line: ${RED}${line}${RESET_COLOR} exit: ${RED}${exit_code}${RESET_COLOR}"
+      echo -e    "!!! Running: KILL -SIGINT -$$"
+      trap "exit ${exit_code}" INT
+      kill -SIGINT -$$
+    }
+
     trap 'on_err $? $LINENO' ERR
-    trap 'on_exit' EXIT
+    trap 'on_exit'           EXIT
 
     do_linting="true"
     do_server="true"
@@ -249,7 +247,7 @@ case "$action" in
         fi
       done
 
-      render_all
+      $0 render_all_html
     fi
 
 
@@ -258,10 +256,9 @@ case "$action" in
       cd ../megauni
       bin/megauni watch
     ) &
-    echo "=== sub-shell process: $!"
-    echo "=== process group: $$"
+    echo "=== sub-shell: $! in proc group: $$"
 
-    $0 _watch ${restart_args[@]}
+    $0 __watch ${restart_args[@]}
 
     ;;
 
