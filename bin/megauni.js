@@ -246,14 +246,11 @@ case "$action" in
       while [[ $count -lt "10" && -z "$in_use" ]]
       do
         lsof -i tcp:$port 1>/dev/null && in_use="true" || :
-        echo "=== Waiting for port $port..."
         sleep 1
         count=$(expr $count + 1)
       done
 
-      [[ -n "$in_use" ]] && \
-        echo -e "=== Port seems to be ready: ${BOLD_WHITE}${port}${RESET_COLOR}" || \
-        echo -e "=== Error on port ${RED}${port}${RESET_COLOR}"
+      [[ -n "$in_use" ]] || echo -e "=== Error on port ${RED}${port}${RESET_COLOR}"
     ) &
     wait $! || :
 
