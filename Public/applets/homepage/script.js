@@ -5,12 +5,13 @@
 var MegaUni;
 $(function () {
   MegaUni = new Applet(
-    function (o) {
-      if (o.name === 'data' && _.has(o.data,'logged_in?')) {
-        $('#loading').hide();
-      }
-    },
     _.values(Applet.funcs)
   );
-  MegaUni.run('data', {"logged_in?" : false});
+  MegaUni.run(
+    'data',
+    {
+      "page_loaded?" : true,
+      "logged_in?" : false
+    }
+  );
 });

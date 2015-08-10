@@ -221,20 +221,25 @@ case "$action" in
   "watch")
     eval "$(bash_setup setup_traps)"
     setup_traps
+
+    use_server="$([[ "$@" =~ "no_server" ]] && echo "" || echo "yes")"
+
     on_sigint () {
       code=$1
       echo ""
-      cd ../megauni
-      bin/megauni stop || :
-      wait
+      if [[ -n "$use_server" ]]; then
+        cd ../megauni
+        bin/megauni stop || :
+      fi
+      wait || :
       exit $code
     }
     trap 'on_sigint $?' INT
 
-    if [[ ! "$@" =~ "no_server" ]] ; then
+    if [[ -n "$use_server" ]] ; then
       (
-      cd ../megauni
-      bin/megauni watch
+        cd ../megauni
+        bin/megauni watch
       ) &
       echo "=== sub-shell: $! in proc: $$"
     fi
@@ -245,8 +250,8 @@ case "$action" in
       port=4567
       while [[ $count -lt "10" && -z "$in_use" ]]
       do
-        lsof -i tcp:$port 1>/dev/null && in_use="true" || :
         sleep 1
+        lsof -i tcp:$port 1>/dev/null && in_use="true"
         count=$(expr $count + 1)
       done
 
