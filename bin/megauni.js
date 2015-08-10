@@ -29,7 +29,6 @@ RED='\e[0;31m'
 BG_RED='\e[1;31m'
 # ==============================================================
 
-
 case "$action" in
 
   "help")
@@ -50,6 +49,7 @@ case "$action" in
     bin/megauni npm install
     node_modules/bower/bin/bower install
     ;;
+
 
   "render_stylus")
     for f in ./Public/applets/*/*.styl
@@ -135,6 +135,9 @@ case "$action" in
     ;;
 
   "__watch")
+    eval "$(bash_setup setup_traps)"
+    setup_traps
+
     js_files="$(echo -e ./*.js specs/*.js Public/applets/*/*.js)"
 
     jshint () {
@@ -152,7 +155,7 @@ case "$action" in
     }
 
 
-    echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc group ${$})..."
+    echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
     IFS=$' '
     while read CHANGE
     do
@@ -205,24 +208,8 @@ case "$action" in
     ;;
 
   "watch")
-    on_exit () {
-      echo ""
-      echo -e "=== ${GREEN}Waiting${RESET_COLOR} for proc group: ${$}..."
-      wait
-      echo -e "=== ${GREEN}Done${RESET_COLOR} ($(basename $0) $$)"
-    }
-
-    on_err () {
-      exit_code="$1"
-      line="$2"
-      echo -e    "!!! ERROR: line: ${RED}${line}${RESET_COLOR} exit: ${RED}${exit_code}${RESET_COLOR}"
-      echo -e    "!!! Running: KILL -SIGINT -$$"
-      trap "exit ${exit_code}" INT
-      kill -SIGINT -$$
-    }
-
-    trap 'on_err $? $LINENO' ERR
-    trap 'on_exit'           EXIT
+    eval "$(bash_setup setup_traps)"
+    setup_traps
 
     do_linting="true"
     do_server="true"
@@ -256,7 +243,7 @@ case "$action" in
       cd ../megauni
       bin/megauni watch
     ) &
-    echo "=== sub-shell: $! in proc group: $$"
+    echo "=== sub-shell: $! in proc: $$"
 
     $0 __watch ${restart_args[@]}
 
