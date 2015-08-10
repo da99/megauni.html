@@ -9,6 +9,7 @@ restart_args=("$@")
 
 action="$1"
 layout="Public/applets/MUE/layout.mustache"
+js_files="$(echo -e ./*.js specs/*.js Public/applets/*/*.js)"
 shift
 
 set -u -e -o pipefail
@@ -138,8 +139,6 @@ case "$action" in
     eval "$(bash_setup setup_traps)"
     setup_traps
 
-    js_files="$(echo -e ./*.js specs/*.js Public/applets/*/*.js)"
-
     jshint () {
       echo -n "=== Running jshint: $1: "
       set +e
@@ -154,9 +153,21 @@ case "$action" in
       fi
     }
 
+    IFS=$' '
+
+    if [[ ! "$@" =~ "fast" ]]; then
+
+      for file in $js_files
+      do
+        if [[ -f "$file" ]]; then
+          jshint "$file"
+        fi
+      done
+
+      $0 render_all_html
+    fi
 
     echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
-    IFS=$' '
     while read CHANGE
     do
       IFS=$'\n'
@@ -210,40 +221,41 @@ case "$action" in
   "watch")
     eval "$(bash_setup setup_traps)"
     setup_traps
+    on_sigint () {
+      code=$1
+      echo ""
+      cd ../megauni
+      bin/megauni stop || :
+      wait
+      exit $code
+    }
+    trap 'on_sigint $?' INT
 
-    do_linting="true"
-    do_server="true"
-    if [[ "$@" =~ "fast" ]]; then
-      do_linting=""
-    fi
-
-    if [[ "$@" =~ "no_server" ]]; then
-      do_server=""
-    fi
-
-
-    # === Regular expression:
-    IFS=$' '
-
-    if [[ ! -z "$do_linting" ]]; then
-
-      for file in $js_files
-      do
-        if [[ -f "$file" ]]; then
-          jshint "$file"
-        fi
-      done
-
-      $0 render_all_html
-    fi
-
-
-    re='^[0-9]+$'
-    (
+    if [[ ! "$@" =~ "no_server" ]] ; then
+      (
       cd ../megauni
       bin/megauni watch
+      ) &
+      echo "=== sub-shell: $! in proc: $$"
+    fi
+
+    (
+      in_use=""
+      count=1
+      port=4567
+      while [[ $count -lt "10" && -z "$in_use" ]]
+      do
+        lsof -i tcp:$port 1>/dev/null && in_use="true" || :
+        echo "=== Waiting for port $port..."
+        sleep 1
+        count=$(expr $count + 1)
+      done
+
+      [[ -n "$in_use" ]] && \
+        echo -e "=== Port seems to be ready: ${BOLD_WHITE}${port}${RESET_COLOR}" || \
+        echo -e "=== Error on port ${RED}${port}${RESET_COLOR}"
     ) &
-    echo "=== sub-shell: $! in proc: $$"
+    wait $! || :
 
     $0 __watch ${restart_args[@]}
 
