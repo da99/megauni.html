@@ -21,8 +21,8 @@
       <div class="content">
         <form action="/sign-in" id="sign_in" method="post">
           <div class="fields">
-            <div class="field screen_name"><label for="LOGIN_SCREEN_NAME">Screen name:</label><input name="screen_name" type="text" value="" /></div>
-            <div class="field passphrase"><label for="LOGIN_PASS_PHRASE">Pass phrase:</label><input name="pswd" type="password" value="" /></div>
+            <div class="field screen_name"><label >Screen name:</label><input name="screen_name" type="text" value="" /></div>
+            <div class="field passphrase"><label >Pass phrase:</label><input name="pswd" type="password" value="" /></div>
             <div class="field buttons"><button class="submit">Log-In</button></div>
           </div>
         </form>
@@ -34,9 +34,17 @@
       <div class="content">
         <form action="/user" id="create_account" method="post">
           <div class="fields">
-            <div class="field screen_name"><label for="NEW_CUSTOMER_SCREEN_NAME">Screen name:</label><input name="screen_name" type="text" value="" /></div>
-            <div class="field pswd"><label for="NEW_CUSTOMER_PASS_PHRASE"><span class="main">Pass phrase</span><span class="sub"> (for better security, use spaces and words)</span><span class="main">:</span></label><input name="pswd" type="password" value="" /></div>
-            <div class="field confirm_pass_phrase"><label for="NEW_CUSTOMER_CONFIRM_PASS_PHRASE"><span class="main">Re-type the pass phrase:</span></label><input name="confirm_pass_word" type="password" value="" /></div>
+            <div class="field screen_name"><label >Screen name:</label><input name="screen_name" type="text" value="" /></div>
+            <div class="field pswd">
+              <label>
+                <span class="main">Pass phrase</span>
+                <span class="sub"> (for better security, use spaces and words)</span>
+                <span class="main">:</span>
+              </label>
+              <input name="pswd" type="password" value="" />
+            </div>
+            <div class="field confirm_pass_phrase"><label >
+                <span class="main">Re-type the pass phrase:</span></label><input name="confirm_pass_word" type="password" value="" /></div>
             <div class="buttons"><input name="_csrf" type="hidden" value="{{_csrf}}" /><button class="submit">Create Account</button></div>
           </div>
         </form>
