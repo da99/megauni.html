@@ -14,10 +14,10 @@ describe('megauni.js:', function () {
   beforeEach(function () {
     $('#THE_STAGE').empty();
 
-    it('does something', function () {
-      expect(true);
-    }); // === it does something
   });
 
+  it('does something', function () {
+    expect(true).toEqual(true);
+  }); // === it does something
 
 }); // === describe megauni.js =================
