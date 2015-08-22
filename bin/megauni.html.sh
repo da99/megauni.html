@@ -52,11 +52,15 @@ case "$action" in
     ;;
 
 
+  "render_stylus?")
+    [[ ! "$1" =~ "/_" && ! "$1" =~ "vars.styl" ]]
+    ;;
+
   "render_stylus")
     for f in ./Public/applets/*/*.styl
     do
-      if [[ ! "$f" =~ "vars.styl" ]] ; then
-        bin/megauni.js stylus $f
+      if $0 render_stylus? $f ; then
+        $0 stylus $f
       fi
     done
     ;;
@@ -139,19 +143,6 @@ case "$action" in
     eval "$(bash_setup setup_traps)"
     setup_traps
 
-    jshint () {
-      echo -n "=== Running jshint: $1: "
-      set +e
-      js_hint_results="$($0 jshint "$1" 2>&1)"
-      js_hint_exit_code="$?"
-      set -e
-      if [[ js_hint_exit_code -eq "0" ]]; then
-        echo -e "${GREEN}Passed${RESET_COLOR}"
-      else
-        echo -e "${RED}Fail${RESET_COLOR}"
-        echo "$js_hint_results"
-      fi
-    }
 
     IFS=$' '
 
@@ -160,10 +151,11 @@ case "$action" in
       for file in $js_files
       do
         if [[ -f "$file" ]]; then
-          jshint "$file"
+          js_setup jshint "$file"
         fi
       done
 
+      $0 render_stylus
       $0 render_all_html
     fi
 
@@ -178,7 +170,7 @@ case "$action" in
 
       echo -e "=== $CHANGE (${path})"
 
-      if [[ "$path" =~ ".html" ]]; then
+      if [[ "$path" =~ ".html"  && "$path" =~ "Public/" ]]; then
         tidy -config tidy.configs.txt -output "$path" "$path"|| echo "FAILED"
       fi
 
@@ -196,8 +188,12 @@ case "$action" in
         fi
       fi
 
+      if $0 render_stylus? "$path" ; then
+        $0 stylus "$path"
+      fi
+
       if [[ "$path" =~ ".js" && ! "$path" =~ "bin/" ]]; then
-        jshint $path
+        js_setup jshint $path
 
         if [[ js_hint_exit_code -eq "0" ]]; then
           if [[ "$file" == "render.js" ]]; then
@@ -213,7 +209,7 @@ case "$action" in
        --quiet   \
        --monitor \
        --event close_write \
-       "$0" $js_files Public/applets/*/*.mustache
+       "$0" $js_files Public/applets/*/*.styl Public/applets/*/*.mustache
      )
 
     ;;
@@ -277,3 +273,4 @@ case "$action" in
     ;;
 
 esac # === case $action
+

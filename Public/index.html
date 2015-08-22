@@ -24,7 +24,7 @@
   <div class="hidden block" data-show_if="logged_in?">
     <p>You are logged in.</p>
   </div>
-  <div class="hidden block" data-show_if="!logged_in?">
+  <div class="hidden block form" data-show_if="!logged_in?">
     <h3>Log-In</h3>
     <div class="content">
       <form action="/sign-in" id="sign_in" method="post" name="sign_in">
@@ -42,7 +42,7 @@
       </form>
     </div>
   </div>
-  <div class="hidden block" data-show_if="!logged_in?">
+  <div class="hidden block form" data-show_if="!logged_in?">
     <h3>Create a New Account</h3>
     <div class="content">
       <form action="/user" id="create_account" method="post" name="create_account">
@@ -78,7 +78,11 @@
   </div>
   <script src="/vendor/bower/jquery/dist/jquery.min.js">
   </script> 
+  <script src="/vendor/bower/jquery.serializeJSON/jquery.serializejson.min.js">
+  </script> 
   <script src="/vendor/bower/lodash/lodash.min.js">
+  </script> 
+  <script src="/vendor/bower/promisejs/promise.min.js">
   </script> 
   <script src="/vendor/bower/da99.applet.js/applet.js">
   </script> 
