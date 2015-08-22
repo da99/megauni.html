@@ -39,8 +39,11 @@ case "$action" in
     echo "  $ bin/megauni.js  deploy"
     echo ""
     echo "  $ bin/megauni.js  render_stylus"
+    echo "  $ bin/megauni.js  render_stylus   path/to/file.styl"
+    echo ""
+    echo "  $ bin/megauni.js  render_html"
     echo "  $ bin/megauni.js  render_html    file/path/mustache.mustache"
-    echo "  $ bin/megauni.js  render_all_html"
+    echo ""
     echo "  $ bin/megauni.js  render   path/to/file.rb"
     echo ""
     exit 0
@@ -51,66 +54,38 @@ case "$action" in
     node_modules/bower/bin/bower install
     ;;
 
-
-  "render_stylus?")
-    [[ ! "$1" =~ "/_" && ! "$1" =~ "vars.styl" ]]
-    ;;
-
   "render_stylus")
-    for f in ./Public/applets/*/*.styl
+    files="$@"
+    if [[ -z "$files" ]]; then
+      files="$(echo ./Public/applets/*/*.styl)"
+    fi
+
+    IFS=$' '
+    for f in $files
     do
-      if $0 render_stylus? $f ; then
+      if [[ ! "$f" =~ "/_" && ! "$f" =~ "vars.styl" ]] ; then
         $0 stylus $f
+      else
+        echo "=== Skipping: $f"
       fi
     done
     ;;
 
-  "render")
-    echo "Rendering: $1"
-    name="$1"
-    shift
-
-    if [[ -f "$name" ]]; then
-      dir="$(dirname "$name")"
-      name="$(basename "$dir")"
-    else
-      dir="./Public/applets/$name"
-    fi
-
-    markup="$dir/markup.html"
-
-    if [[ ! -d "$dir" ]]; then
-      echo "Not found: $dir" 1>&2
-      exit 1
-    fi
-
-    err=""
-    ruby -r"./Public/applets/MUE/layout" -r"${dir}/markup.rb" -e "
-      File.write(\"$markup\", HTML);
-    " || err="true"
-
-    if [[ -z "$err" ]]; then
-      if [[ -f "$markup" ]]; then
-        echo "$markup"
-      fi
-
-      if [[ "$@" =~ "print" ]]; then
-        cat "$markup"
-      fi
-    fi # === if no err
-
-    ;;
-
-  "render_all_html")
-    for file in Public/applets/*/*.mustache
+  "jshint!")
+    for file in $js_files
     do
-      if [[ ! ( "$file" =~ "layout.mustache" ) ]]; then
-        $0 render_html "$file"
+      if [[ -f "$file" ]]; then
+        js_setup jshint! "$file"
       fi
     done
     ;;
 
   "render_html")
+    files="$@"
+    if [[ -z "$files" ]]; then
+      files="$(echo Public/applets/*/*.mustache)"
+    fi
+
     render_html () {
       local file="$1"
       echo "=== Rendering: $file"
@@ -132,7 +107,15 @@ case "$action" in
       fi
     }
 
-    render_html "$@"
+    IFS=$' '
+    for file in $files
+    do
+      if [[ "$file" =~ "layout.mustache" ]]; then
+        echo "=== Skipping: $file"
+      else
+        render_html "$file"
+      fi
+    done
     ;;
 
   "procs")
@@ -148,15 +131,9 @@ case "$action" in
 
     if [[ ! "$@" =~ "fast" ]]; then
 
-      for file in $js_files
-      do
-        if [[ -f "$file" ]]; then
-          js_setup jshint "$file"
-        fi
-      done
-
+      $0 jshint!
       $0 render_stylus
-      $0 render_all_html
+      $0 render_html
     fi
 
     echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
@@ -182,22 +159,20 @@ case "$action" in
 
       if [[ "$file" =~ ".mustache" ]]; then
         if [[ "$file" == "layout.mustache" ]]; then
-          $0 render_all_html
+          $0 render_html
         else
           $0 render_html "$path"
         fi
       fi
 
-      if $0 render_stylus? "$path" ; then
-        $0 stylus "$path"
-      fi
+      $0 render_stylus "$path"
 
       if [[ "$path" =~ ".js" && ! "$path" =~ "bin/" ]]; then
         js_setup jshint $path
 
         if [[ js_hint_exit_code -eq "0" ]]; then
           if [[ "$file" == "render.js" ]]; then
-            $0 render_all_html
+            $0 render_html
           fi
         fi
 
