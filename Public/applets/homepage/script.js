@@ -9,12 +9,13 @@ $(function () {
     function (o) {
       if (o.name === 'ajax' && o.form_id) {
         $('#' + o.form_id).closest('div.form').addClass('loading');
-        $('#' + o.form_id + ' div.buttons').append('<div class="loading_msg">Processing...</div>');
+        $('#' + o.form_id + ' div.buttons').after('<div class="loading_msg">Processing...</div>');
       }
 
       if (o.name === 'ajax response' && o.request.form_id) {
-        $('#' + o.form_id).closest('div.form').removeClass('loading');
-        $('#' + o.form_id + ' div.buttons div.loading_msg').remove();
+        $('#' + o.request.form_id).closest('div.form').removeClass('loading');
+        $('#' + o.request.form_id + ' div.loading_msg').remove();
+      Applet.log(o);
       }
 
       if (o.name === 'ajax response' && !o.json) {
@@ -24,7 +25,6 @@ $(function () {
           o.json = {error: {unknown:o.text}};
         }
       }
-      Applet.log(o);
     },
 
     _.values(Applet.funcs)

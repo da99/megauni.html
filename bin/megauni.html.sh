@@ -56,7 +56,7 @@ case "$action" in
 
   "render_stylus")
     files="$@"
-    if [[ -z "$files" ]]; then
+    if [[ -z "$files" || "$files" =~ "vars.styl" || "$files" =~ "/_" ]]; then
       files="$(echo ./Public/applets/*/*.styl)"
     fi
 
@@ -165,15 +165,16 @@ case "$action" in
         fi
       fi
 
-      $0 render_stylus "$path"
+      if [[ "$file" =~ ".styl" ]]; then
+        $0 render_stylus "$path"
+      fi
 
       if [[ "$path" =~ ".js" && ! "$path" =~ "bin/" ]]; then
-        js_setup jshint $path
+        js_pass="true"
+        js_setup jshint! $path || js_pass=""
 
-        if [[ js_hint_exit_code -eq "0" ]]; then
-          if [[ "$file" == "render.js" ]]; then
-            $0 render_html
-          fi
+        if [[ -n $js_pass && "$file" == "render.js" ]]; then
+          $0 render_html
         fi
 
         echo ""
