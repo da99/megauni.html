@@ -1,21 +1,21 @@
 "use strict";
 /* jshint undef: true, unused: true */
-/* global Applet  */
 
-var MegaUni;
+var MegaUni = {funcs: {}};
 
 $(function () { // === START SCOPE ======
 
-  function mu_ui_ajax(o) {
+  // === CONSTRUCTOR ====
+  MegaUni.funcs.ui_ajax = function (o) {
 
     // === Clear errors:
     if (o.name === 'dom') {
-      $('input[type="text"], textarea').on('keypress', function (e) {
-        $(e.target).closest('div.field').removeClass('field_invalid');
-        $(e.target).closest('div.form').find('div.error_msg').remove();
+      $('input[type="text"], textarea').on('keypress', function () {
+        $(this).closest('div.field').removeClass('field_invalid');
+        $(this).closest('div.form').find('div.error_msg').remove();
       });
 
-      $('form button.submit').on('click', function (e) {
+      $('form button.submit').on('click', function () {
         var form = $(this).closest('form');
         form.find('div.field_invalid').removeClass('field_invalid');
         form.find('div.error_msg').remove();
@@ -45,15 +45,8 @@ $(function () { // === START SCOPE ======
       } // === if error fields
     }
 
-  } // === func ajax
+  }; // === func ui_ajax
 
-  // === CONSTRUCTOR ====
-  MegaUni = function () {
-    this.applet = new Applet(
-      _.values(Applet.funcs),
-      mu_ui_ajax
-    ); // === new Applet
-  };
 
 }); // === END SCOPE ====================
 

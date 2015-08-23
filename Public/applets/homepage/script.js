@@ -1,14 +1,17 @@
 "use strict";
 /* jshint esnext: true, undef: true, unused: true */
-/* global MegaUni  */
+/* global MegaUni, Applet */
 
-var MU;
+var APP;
 
 $(function () {
 
-  MU = new MegaUni();
+  APP = new Applet(
+    _.values(Applet.funcs),
+    MegaUni.funcs.ui_ajax
+  );
 
-  MU.applet.run(
+  APP.run(
     'data',
     {
       "page_loaded?" : true,
@@ -17,3 +20,4 @@ $(function () {
   );
 
 }); // === MegaUni
+
