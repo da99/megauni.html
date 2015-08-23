@@ -62,3 +62,12 @@ div.loading form div.buttons {
 div.loading div.loading_msg {
   background-color: #fffee2;
 }
+div.form div.field_invalid {
+  border: 1px dashed #ff2d2d;
+  padding: 4px;
+}
+div.form div.error_msg {
+  color: #ff2d2d;
+  font-style: italic;
+  font-size: smaller;
+}

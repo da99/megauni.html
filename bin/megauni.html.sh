@@ -9,7 +9,7 @@ restart_args=("$@")
 
 action="$1"
 layout="Public/applets/MUE/layout.mustache"
-js_files="$(echo -e ./*.js specs/*.js Public/applets/*/*.js)"
+js_files="$(echo -e ./*.js specs/*.js Public/scripts/megauni.js Public/applets/*/*.js)"
 shift
 
 set -u -e -o pipefail
@@ -214,22 +214,22 @@ case "$action" in
         bin/megauni watch
       ) &
       echo "=== sub-shell: $! in proc: $$"
-    fi
 
-    (
-      in_use=""
-      count=1
-      port=4567
-      while [[ $count -lt "10" && -z "$in_use" ]]
-      do
-        sleep 1
-        lsof -i tcp:$port 1>/dev/null && in_use="true"
-        count=$(expr $count + 1)
-      done
+      (
+        in_use=""
+        count=1
+        port=4567
+        while [[ $count -lt "10" && -z "$in_use" ]]
+        do
+          sleep 1
+          lsof -i tcp:$port 1>/dev/null && in_use="true"
+          count=$(expr $count + 1)
+        done
 
-      [[ -n "$in_use" ]] || echo -e "=== Error on port ${RED}${port}${RESET_COLOR}"
-    ) &
-    wait $! || :
+        [[ -n "$in_use" ]] || echo -e "=== Error on port ${RED}${port}${RESET_COLOR}"
+      ) &
+      wait $! || :
+    fi # === if use_server
 
     $0 __watch ${restart_args[@]}
 

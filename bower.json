@@ -26,7 +26,7 @@
     "jasmine": ">2.0.0"
   },
   "dependencies": {
-    "da99.applet.js": "da99/applet.js#~4.2.0",
+    "da99.applet.js": "da99/applet.js#4.3.0",
     "jquery": "2.1.4",
     "lodash": "3.10.1",
     "hogan.js": "twitter/hogan.js#3.0.2",

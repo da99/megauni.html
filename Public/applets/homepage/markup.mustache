@@ -34,7 +34,12 @@
       <div class="content">
         <form action="/user" id="create_account" method="post">
           <div class="fields">
-            <div class="field screen_name"><label >Screen name:</label><input name="screen_name" type="text" value="" /></div>
+
+            <div class="field screen_name">
+              <label>Screen name:</label>
+              <input name="screen_name" type="text" value="" />
+            </div>
+
             <div class="field pswd">
               <label>
                 <span class="main">Pass phrase</span>
@@ -43,6 +48,7 @@
               </label>
               <input name="pswd" type="password" value="" />
             </div>
+
             <div class="field confirm_pass_phrase"><label >
                 <span class="main">Re-type the pass phrase:</span></label><input name="confirm_pass_word" type="password" value="" /></div>
             <div class="buttons"><input name="_csrf" type="hidden" value="{{_csrf}}" /><button class="submit">Create Account</button></div>
