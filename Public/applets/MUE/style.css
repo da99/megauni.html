@@ -64,10 +64,17 @@ div.loading div.loading_msg {
 }
 div.form div.field_invalid {
   border: 1px dashed #ff2d2d;
-  padding: 4px;
+  padding: 0.5em;
 }
 div.form div.error_msg {
   color: #ff2d2d;
   font-style: italic;
   font-size: smaller;
+}
+div.form div.success_msg {
+  background-color: #fffee2;
+  margin: 0.5em 0 0 0;
+  padding: 0.5em;
+  background-color: #b8f3a3;
+  color: #363636;
 }
