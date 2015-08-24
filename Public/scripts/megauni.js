@@ -1,5 +1,6 @@
 "use strict";
 /* jshint undef: true, unused: true */
+/* global promise */
 
 var MegaUni = {funcs: {}};
 
@@ -70,6 +71,7 @@ $(function () { // === START SCOPE ======
   }; // === func ui_ajax
 
 }); // === END SCOPE ====================
+
 
 
 
