@@ -9,7 +9,7 @@ restart_args=("$@")
 
 action="$1"
 layout="Public/applets/MUE/layout.mustache"
-js_files="$(echo -e ./*.js specs/*.js Public/scripts/404.js Public/scripts/megauni.js Public/applets/*/*.js)"
+js_files="$(echo -e ./*.js specs/*.js Public/scripts/500.js Public/scripts/404.js Public/scripts/megauni.js Public/applets/*/*.js)"
 html_files="./Public/403.html ./Public/404.html ./Public/500.html"
 shift
 
@@ -95,6 +95,7 @@ case "$action" in
         if [[ "$contents" != "$new_contents" ]]; then
           echo -e "$new_contents" > $file
           echo -e "=== HTML valid: $file ${GREEN}Passed${RESET_COLOR} and wrote file."
+          touch $file
         fi
       fi
 
