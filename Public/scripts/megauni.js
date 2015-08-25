@@ -1,6 +1,5 @@
 "use strict";
 /* jshint undef: true, unused: true */
-/* global promise */
 
 var MegaUni = {funcs: {}};
 

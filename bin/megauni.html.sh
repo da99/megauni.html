@@ -214,6 +214,7 @@ case "$action" in
         bin/megauni watch
       ) &
       echo "=== sub-shell: $! in proc: $$"
+      sleep 1s
 
       (
         in_use=""
