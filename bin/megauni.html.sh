@@ -95,7 +95,6 @@ case "$action" in
         if [[ "$contents" != "$new_contents" ]]; then
           echo -e "$new_contents" > $file
           echo -e "=== HTML valid: $file ${GREEN}Passed${RESET_COLOR} and wrote file."
-          touch $file
         fi
       fi
 
@@ -165,7 +164,9 @@ case "$action" in
 
       echo -e "=== $CHANGE (${path})"
 
-      if [[ "$path" =~ ".html"  && "$path" =~ "Public/" ]]; then
+      if [[ "$html_files" =~ "$path" ]]; then
+        echo "=== Validating in 2s to let gvim detect change: $path "
+        sleep 2s
         $0 validate_html $path
       fi
 
