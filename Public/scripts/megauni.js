@@ -1,5 +1,6 @@
 "use strict";
 /* jshint undef: true, unused: true */
+/* global Applet */
 
 var MegaUni = {funcs: {}};
 
@@ -30,6 +31,7 @@ $(function () { // === START SCOPE ======
     if (o.name === 'ajax response' && o.request.form_id) {
 
       var div_form = $('#' + o.request.form_id).closest('div.form');
+      var err;
 
       div_form
       .removeClass('loading')
@@ -39,13 +41,24 @@ $(function () { // === START SCOPE ======
       // === Display errors:
       if (o.response.error) {
 
-        _.each(o.response.error.fields || [], function (msg, key) {
-          var field = div_form.find('div.field.' + key + ':first');
-          field.addClass('field_invalid');
-          var err = $('<div class="error_msg error_' + key + '"></div>');
-          err.text(msg);
-          field.after(err);
-        });
+        if (_.contains(o.response.error.tags, 'server')) {
+          Applet.log(o.response.error);
+          err = $('<div class="error_msg error_server"></div>');
+
+          Applet.log(o.response.error.msg || '[No error msg specified.]');
+          err.text('Unknown error. Close this browser window and try again in 30 mins.');
+          div_form.find('div.buttons').before(err);
+        }
+
+        if (o.response.error.fields) {
+          _.each(o.response.error.fields || [], function (msg, key) {
+            var field = div_form.find('div.field.' + key + ':first');
+            field.addClass('field_invalid');
+            err = $('<div class="error_msg error_' + key + '"></div>');
+            err.text(msg);
+            field.after(err);
+          });
+        } // === if error fields
 
       } // === end: display errors
 

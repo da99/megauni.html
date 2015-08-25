@@ -71,6 +71,10 @@ div.form div.error_msg {
   font-style: italic;
   font-size: smaller;
 }
+div.form div.error_server {
+  font-size: larger;
+  padding: 1em 0;
+}
 div.form div.success_msg {
   background-color: #fffee2;
   margin: 0.5em 0 0 0;
