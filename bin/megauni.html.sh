@@ -9,7 +9,8 @@ restart_args=("$@")
 
 action="$1"
 layout="Public/applets/MUE/layout.mustache"
-js_files="$(echo -e ./*.js specs/*.js Public/scripts/megauni.js Public/applets/*/*.js)"
+js_files="$(echo -e ./*.js specs/*.js Public/scripts/404.js Public/scripts/megauni.js Public/applets/*/*.js)"
+html_files="./Public/403.html ./Public/404.html ./Public/500.html"
 shift
 
 set -u -e -o pipefail
@@ -80,6 +81,26 @@ case "$action" in
     done
     ;;
 
+  "validate_html")
+    htmls="$@"
+    if [[ -z "$@" ]] ; then
+      htmls=${html_files[@]}
+    fi
+
+    for file in $htmls
+    do
+      contents="$(cat $file)"
+      new_contents="$(tidy -config tidy.configs.txt "$file")" || new_contents="fail"
+      if [[ "$new_contents" != "fail"  ]]; then
+        if [[ "$contents" != "$new_contents" ]]; then
+          echo -e "$new_contents" > $file
+          echo -e "=== HTML valid: $file ${GREEN}Passed${RESET_COLOR} and wrote file."
+        fi
+      fi
+
+    done
+    ;;
+
   "render_html")
     files="$@"
     if [[ -z "$files" ]]; then
@@ -100,11 +121,8 @@ case "$action" in
         echo "=== Created dir: ${html_dir}"
       fi
 
-      ( echo "$contents" | tidy -config tidy.configs.txt -output "$html_file" ) || html_valid=""
-
-      if [[ ! -z "$html_valid" ]]; then
-        echo "=== Wrote: $html_file"
-      fi
+      echo "$contents" > $html_file
+      $0 validate_html $html_file
     }
 
     IFS=$' '
@@ -126,20 +144,19 @@ case "$action" in
     eval "$(bash_setup setup_traps)"
     setup_traps
 
-
-    IFS=$' '
-
     if [[ ! "$@" =~ "fast" ]]; then
 
       $0 jshint!
       $0 render_stylus
       $0 render_html
+      $0 validate_html
+
     fi
 
     echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
+
     while read CHANGE
     do
-      IFS=$'\n'
       dir=$(echo "$CHANGE" | cut -d' ' -f 1)
       op=$(echo "$CHANGE" | cut -d' ' -f 2)
       path="${dir}$(echo "$CHANGE" | cut -d' ' -f 3)"
@@ -148,7 +165,7 @@ case "$action" in
       echo -e "=== $CHANGE (${path})"
 
       if [[ "$path" =~ ".html"  && "$path" =~ "Public/" ]]; then
-        tidy -config tidy.configs.txt -output "$path" "$path"|| echo "FAILED"
+        $0 validate_html $path
       fi
 
       if [[ "$path" =~ "$0" ]]; then
@@ -185,7 +202,11 @@ case "$action" in
        --quiet   \
        --monitor \
        --event close_write \
-       "$0" $js_files Public/applets/*/*.styl Public/applets/*/*.mustache
+       "$0"        \
+       $js_files   \
+       $html_files \
+       Public/applets/*/*.styl  \
+       Public/applets/*/*.mustache
      )
 
     ;;

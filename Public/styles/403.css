@@ -1,0 +1,66 @@
+        a:link, a:visited {
+            color: #F00919;
+            font-family: helvetica, arial, sans-serif;
+            font-weight: bold;
+            padding: 1px 1px 2px 1px;
+        }
+
+        a:hover, a:active {
+            color: #fff;
+            background: #F00919;
+            
+        }
+
+
+        html, body, div, h1, h2, h3, h4, h5, h6, ul, ol, dl, li, dt, dd, 
+        p, blockquote, pre, form, fieldset, table, th, td { 
+          margin: 0; padding: 0; 
+        }
+
+        #loading {
+          font-size: 2em; 
+          padding: 20px 10px 10px 10px; 
+          text-transform: lowercase; 
+          font-weight: bold; }
+          #loading img { margin: 0 10px 0 0;}
+
+        #content { display: none; }
+
+        #busy_body {
+          padding: 0;
+          margin: 0;
+          background: #A2D3E0 none no-repeat top center;
+          background-image: none;
+          text-align: center;
+          font-size: 62.5%;
+        }
+
+        #busy_container {
+           width: 800px;
+           margin: 0 auto;
+           text-align: center;
+           padding-top: 50px;
+        }
+
+        #error_msg {
+                margin: 0 auto;
+                overflow: hidden;
+                width: 225px;
+                height: 107px;
+                font-size: x-small;
+        }
+
+
+        #tagline { 
+                color: #A2D3E0;
+         }
+        #status_msg { 
+                text-align: center;
+                font-family: helvetica, arial, sans-serif;
+                color: #073D6F;
+                font-size: large;
+                padding: 10px 0 0 0;
+                font-weight: bold;
+                font-style: italic;
+        }
+
