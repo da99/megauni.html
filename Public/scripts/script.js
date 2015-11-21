@@ -1,4 +1,6 @@
 "use strict";
+/* jshint undef: true, unused: true */
+/* global create_event, on, post, emit, Template, APP_ERROR */
 
 // ======================================
 //
@@ -27,7 +29,7 @@ on('before success #Headline_Create', function (o) {
 // === Add headline to DOM
 on('headline', function (msg) {
   var template_msg = _.defaults(msg, {
-    dom_id : msg.dom_id || ('m' + msg.id + '_' + (new Date).getTime()),
+    dom_id : msg.dom_id || ('m' + msg.id + '_' + (new Date()).getTime()),
     author : msg.author || '',
     body   : msg.body || ''
   });
@@ -69,7 +71,7 @@ on('headline', function (msg) {
 });
 
 // === Remove extra messages
-on('headline', function (msg) {
+on('headline', function () {
   var list = Headline_Read.DOM.find('div.msg');
   if (list.length > Headline_Read.MAX)
     list.last().remove();

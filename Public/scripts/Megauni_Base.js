@@ -1,3 +1,5 @@
+"use strict";
+/* jshint undef: true, unused: true */
 
 var url_regexp = /(https?:[^\s]+\.(jpg|gif|png|jpeg))/gi;
 
@@ -17,17 +19,19 @@ var Form_Image_Dimension_Cacher = function(form_name) {
     this.matches      = this.txt.match(url_regexp);
     this.total_images = this.matches.length;
   
-    $.each(this.matches, function(i,val){ cacher.image_processor(i,val,cacher.total_images) });
+    $.each(this.matches, function(i,val) {
+      cacher.image_processor(i,val,cacher.total_images);
+    });
 
   };
 
   this.finish = function(){
-    if(this.onfinish == 'submit') {
+    if(this.onfinish === 'submit') {
       this.form.submit();
     } else {
       if(this.onfinish)
         this.onfinish();
-    };
+    }
     return this.form;
   };
 
@@ -40,7 +44,7 @@ var Form_Image_Dimension_Cacher = function(form_name) {
     if(this.images.length >= this.total_images) {
       this.textarea_cache.val(this.images.join("\n"));
       this.finish();
-    };
+    }
   };
 
   this.image_processor = function(i, val) {
@@ -63,10 +67,12 @@ var Form_Image_Dimension_Cacher = function(form_name) {
 }; // Form_Image_Dimension_Cacher
 
 
-var Form_Submitter = {
+var Form_Submitter;
+Form_Submitter = {
 
-  submit : function(button){
-            var form = $(button).parents('form')[0];
+  submit : function(button) {
+            var form;
+            form = $(button).parents('form')[0];
             var cacher = new Form_Image_Dimension_Cacher('form_club_message_create');
             cacher.onfinish = 'submit';
             cacher.cache_dimensions();

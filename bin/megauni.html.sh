@@ -9,8 +9,11 @@ restart_args=("$@")
 
 action="$1"
 layout="Public/applets/MUE/layout.mustache"
-js_files="$(echo -e ./*.js specs/*.js Public/scripts/500.js Public/scripts/404.js Public/scripts/megauni.js Public/applets/*/*.js)"
-html_files="./Public/403.html ./Public/404.html ./Public/500.html"
+html_files=(
+  ./Public/403.html
+  ./Public/404.html
+  ./Public/500.html
+)
 shift
 
 set -u -e -o pipefail
@@ -21,7 +24,7 @@ set -u -e -o pipefail
 # FROM: http://www.ibm.com/developerworks/aix/library/au-learningtput/
 # FROM: http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 GREEN=$(tput setaf 2)
-GREEN_BG=$(tput setb 2)
+GREEN_BG=$(tput setab 2)
 WHITE=$(tput setaf 7)
 BOLD_WHITE_ON_GREEN=$(tput bold)${WHITE}${GREEN_BG}
 BOLD_WHITE=$(tput bold)${WHITE}
@@ -37,7 +40,6 @@ case "$action" in
     echo ""
     echo "  $ bin/megauni.js  watch"
     echo "  $ bin/megauni.js  watch   fast"
-    echo "  $ bin/megauni.js  deploy"
     echo ""
     echo "  $ bin/megauni.js  render_stylus"
     echo "  $ bin/megauni.js  render_stylus   path/to/file.styl"
@@ -45,14 +47,20 @@ case "$action" in
     echo "  $ bin/megauni.js  render_html"
     echo "  $ bin/megauni.js  render_html    file/path/mustache.mustache"
     echo ""
-    echo "  $ bin/megauni.js  render   path/to/file.rb"
-    echo ""
+    bash_setup print_help $0
     exit 0
     ;;
 
   "deploy")
-    bin/megauni npm install
+    # === $ deploy
+    # === Install npm and bower packages.
+    # === Updates npm and bower packages.
+    # === Renders all stylus and html files ($ render)
+    npm install
+    npm update
     node_modules/bower/bin/bower install
+    node_modules/bower/bin/bower update
+    $0 render
     ;;
 
   "render_stylus")
@@ -72,13 +80,18 @@ case "$action" in
     done
     ;;
 
+
+  "js_files")
+    find Public/ specs/ -type f -regex ".*.js\$" -and -not -regex ".*/vendor/.*" -printf "%p\n"
+    ;;
+
   "jshint!")
-    for file in $js_files
+    while read  file
     do
       if [[ -f "$file" ]]; then
-        js_setup jshint! "$file"
+        js_setup jshint! "$file" || (echo "=== jshint failed: $file" 1>&2 && exit 1)
       fi
-    done
+    done < <($0 js_files)
     ;;
 
   "validate_html")
@@ -89,10 +102,16 @@ case "$action" in
 
     for file in $htmls
     do
+      echo -n "=== Validating $file: " 1>&2
       contents="$(cat $file)"
       new_contents="$(tidy -config tidy.configs.txt "$file")" || new_contents="fail"
-      if [[ "$new_contents" != "fail"  ]]; then
-        if [[ "$contents" != "$new_contents" ]]; then
+      if [[ "$new_contents" == "fail"  ]]; then
+        echo "${RED}Fail${RESET_COLOR}" 1>&2
+      else
+        if [[ "$contents" == "$new_contents" ]]; then
+          echo "${GREEN}Passed.${RESET_COLOR}" 1>&2
+        else
+          echo "${GREEN}Passed.${RESET_COLOR} Writing new content..." 1>&2
           echo -e "$new_contents" > $file
           echo -e "=== HTML valid: $file ${GREEN}Passed${RESET_COLOR} and wrote file."
         fi
@@ -110,7 +129,7 @@ case "$action" in
     render_html () {
       local file="$1"
       echo "=== Rendering: $file"
-      local results="$(iojs render.js $layout $file)"
+      local results="$(node render.js $layout $file)"
       local html_file="$(echo "$results" | head -n 1)"
       local contents="$(echo "$results" | tail -n +2)"
       local html_valid="true"
@@ -136,6 +155,16 @@ case "$action" in
     done
     ;;
 
+  "render")
+    # === $ render
+    # === 1) Validates .js files using "jshint".
+    # === 2) Renders all stylus files.
+    # === 3) Renders all mustache templates.
+    $0 jshint!
+    $0 render_stylus
+    $0 render_html
+    ;;
+
   "procs")
     ps aux | grep -E "node|megauni|pm2|inotif" --color
     ;;
@@ -143,15 +172,6 @@ case "$action" in
   "__watch")
     eval "$(bash_setup setup_traps)"
     setup_traps
-
-    if [[ ! "$@" =~ "fast" ]]; then
-
-      $0 jshint!
-      $0 render_stylus
-      $0 render_html
-      $0 validate_html
-
-    fi
 
     echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
 
@@ -164,7 +184,7 @@ case "$action" in
 
       echo -e "=== $CHANGE (${path})"
 
-      if [[ "$html_files" =~ "$path" ]]; then
+      if [[ "${html_files[@]}" =~ "$path" ]]; then
         echo "=== Validating in 2s to let gvim detect change: $path "
         sleep 2s
         $0 validate_html $path
@@ -205,10 +225,9 @@ case "$action" in
        --monitor \
        --event close_write \
        "$0"        \
-       $js_files   \
-       $html_files \
-       Public/applets/*/*.styl  \
-       Public/applets/*/*.mustache
+       -r Public/  \
+       -r specs/   \
+       --exclude "/vendor/"
      )
 
     ;;
@@ -217,43 +236,10 @@ case "$action" in
     eval "$(bash_setup setup_traps)"
     setup_traps
 
-    use_server="$([[ "$@" =~ "no_server" ]] && echo "" || echo "yes")"
-
-    on_sigint () {
-      code=$1
-      echo ""
-      if [[ -n "$use_server" ]]; then
-        cd ../megauni
-        bin/megauni stop || :
-      fi
-      wait || :
-      exit $code
-    }
-    trap 'on_sigint $?' INT
-
-    if [[ -n "$use_server" ]] ; then
-      (
-        cd ../megauni
-        bin/megauni watch
-      ) &
-      echo "=== sub-shell: $! in proc: $$"
-      sleep 1s
-
-      (
-        in_use=""
-        count=1
-        port=4567
-        while [[ $count -lt "10" && -z "$in_use" ]]
-        do
-          sleep 1
-          lsof -i tcp:$port 1>/dev/null && in_use="true"
-          count=$(expr $count + 1)
-        done
-
-        [[ -n "$in_use" ]] || echo -e "=== Error on port ${RED}${port}${RESET_COLOR}"
-      ) &
-      wait $! || :
-    fi # === if use_server
+    if [[ ! "$@" =~ "fast" ]]; then
+      $0 jshint! || :
+      $0 validate_html || :
+    fi
 
     $0 __watch ${restart_args[@]}
 
