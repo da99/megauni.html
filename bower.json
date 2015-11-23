@@ -5,7 +5,7 @@
     "da99 <i-hate-spam-1234567@mailinator.com>"
   ],
   "description": "Client for megauni.com",
-  "main": "megauni.js",
+  "main": "scripts/megauni.js",
   "moduleType": [
     "globals"
   ],
@@ -13,7 +13,7 @@
     "megauni"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/da99/megauni.js",
+  "homepage": "https://github.com/da99/megauni.html",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -26,10 +26,10 @@
     "jasmine": ">2.0.0"
   },
   "dependencies": {
-    "da99.applet.js": "da99/applet.js#4.4.1",
-    "jquery": "2.1.4",
-    "lodash": "3.10.1",
-    "hogan.js": "twitter/hogan.js#3.0.2",
-    "jquery.serializeJSON": "2.6.1"
+    "da99.applet.js": "da99/applet.js",
+    "jquery": "^2",
+    "lodash": "^3",
+    "jquery.serializeJSON": "^2",
+    "mustache": "^2"
   }
 }

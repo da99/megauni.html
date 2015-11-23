@@ -53,6 +53,7 @@ case "$action" in
 
   "deploy")
     # === $ deploy
+    # === To be used in both production and development envs.
     # === Install npm and bower packages.
     # === Updates npm and bower packages.
     # === Renders all stylus and html files ($ render)
