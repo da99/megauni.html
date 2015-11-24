@@ -39,6 +39,10 @@ case "$action" in
     exit 0
     ;;
 
+  "procs")
+    ps aux | grep -E "node|megauni|pm2|inotif" --color
+    ;;
+
   "deploy")
     # === $ deploy
     # === To be used in both production and development envs.
@@ -122,9 +126,15 @@ case "$action" in
     render_html () {
       local file="$1"
       echo "=== Rendering: $file"
-      local results="$(node render.js $layout $file)"
-      local html_file="$(echo "$results" | head -n 1)"
-      local contents="$(echo "$results" | tail -n +2)"
+      local results
+      results="$(node render.js $layout $file)"
+
+      local html_file
+      html_file="$(echo "$results" | head -n 1)"
+
+      local contents
+      contents="$(echo "$results" | tail -n +2)"
+
       local html_valid="true"
       local html_dir="$(dirname $html_file)"
 
@@ -140,6 +150,7 @@ case "$action" in
     IFS=$' '
     for file in $files
     do
+      echo ""
       if [[ "$file" =~ "layout.mustache" ]]; then
         echo "=== Skipping: $file"
       else
@@ -156,17 +167,6 @@ case "$action" in
     $0 jshint!
     $0 render_stylus
     $0 render_html
-    ;;
-
-  "procs")
-    ps aux | grep -E "node|megauni|pm2|inotif" --color
-    ;;
-
-  "__watch")
-    eval "$(bash_setup setup_traps)"
-    setup_traps
-
-     echo "done"
     ;;
 
   "watch")
@@ -191,19 +191,19 @@ case "$action" in
 
       echo -e "=== $CHANGE (${path})"
 
+      if [[ "$path" == "$0" ]]; then
+        echo "=== ${GREEN}Reloading${RESET_COLOR}: $0 ${orig_args[@]}"
+        echo ""
+        break
+      fi
+
       if [[ "${error_files[@]}" =~ "$path" ]]; then
         echo "=== Validating in 2s to let gvim detect change: $path "
         sleep 2s
         $0 validate_html $path
       fi
 
-      if [[ "$path" =~ "$0" ]]; then
-        echo ""
-        echo "=== ${GREEN}Reloading${RESET_COLOR}: $0 ${orig_args[@]}"
-        break
-      fi
-
-      if [[ "$file" =~ ".mustache" ]]; then
+      if [[ "$file" == *.mustache ]]; then
         if [[ "$file" == "layout.mustache" ]]; then
           $0 render_html
         else
@@ -211,20 +211,23 @@ case "$action" in
         fi
       fi
 
-      if [[ "$file" =~ ".styl" ]]; then
+      if [[ "$file" == *.styl ]]; then
         $0 render_stylus "$path"
       fi
 
-      if [[ "$path" =~ ".js" && ! "$path" =~ "bin/" ]]; then
+      if [[ "$path" == *.json && ! "$path" =~ "bin/" ]]; then
         js_pass="true"
         js_setup jshint! $path || js_pass=""
+        echo ""
+      fi
 
-        if [[ -n $js_pass && "$file" == "render.js" ]]; then
-          $0 render_html
+      if [[ "$path" == *.js && ! "$path" =~ "bin/" ]]; then
+
+        if js_setup jshint! $path; then
+           [[ "$file" == "render.js" ]] && $0 render_html || :
         fi
 
         echo ""
-
       fi
     done < <(
      inotifywait \
@@ -234,6 +237,7 @@ case "$action" in
        "$0"        \
        -r Public/  \
        -r specs/   \
+       *.js        \
        --exclude "/vendor/"
      )
 
