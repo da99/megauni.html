@@ -11,6 +11,14 @@ shift
 
 set -u -e -o pipefail
 
+( sleep 6 ) &
+eval "$(bash_setup show_err_line_trap)"
+
+
+
+
+
+
 layout="Public/applets/MUE/layout.mustache"
 error_files=(
   ./Public/403.html
@@ -90,73 +98,73 @@ case "$action" in
     ;;
 
   "validate_html")
-    htmls="$@"
+    # === $ ... validate_html                     => validates all error html files.
+    # === $ ... validate_html  path/to/file.html
+
     if [[ -z "$@" ]] ; then
-      htmls=${error_files[@]}
+      for file in ${error_files[@]}
+      do
+        $0 validate_html $file
+      done
+      exit 0
     fi
 
-    for file in $htmls
-    do
-      echo -n "=== Validating $file: " 1>&2
-      contents="$(cat $file)"
-      new_contents="$(tidy -config tidy.configs.txt "$file")" || new_contents="fail"
-      if [[ "$new_contents" == "fail"  ]]; then
-        echo "${RED}Fail${RESET_COLOR}" 1>&2
-      else
-        if [[ "$contents" == "$new_contents" ]]; then
-          echo "${GREEN}Passed.${RESET_COLOR}" 1>&2
-        else
-          echo "${GREEN}Passed.${RESET_COLOR} Writing new content..." 1>&2
-          echo -e "$new_contents" > $file
-          echo -e "=== HTML valid: $file ${GREEN}Passed${RESET_COLOR} and wrote file."
-        fi
-      fi
+    file="$1"
+    shift
 
-    done
+    echo -n "=== Validating $file: " 1>&2
+    contents="$(cat $file)"
+    new_contents="$(tidy -config tidy.configs.txt "$file")" || new_contents="fail"
+    if [[ "$new_contents" == "fail"  ]]; then
+      echo "${RED}Fail${RESET_COLOR}" 1>&2
+    else
+      if [[ "$contents" == "$new_contents" ]]; then
+        echo "${GREEN}Passed.${RESET_COLOR}" 1>&2
+      else
+        echo "${GREEN}Passed.${RESET_COLOR} Writing new content..." 1>&2
+        echo -e "$new_contents" > $file
+        echo -e "=== HTML valid: $file ${GREEN}Passed${RESET_COLOR} and wrote file."
+      fi
+    fi
+
     ;;
 
   "render_html")
     # ===  $ bin/megauni.js  render_html
     # ===  $ bin/megauni.js  render_html    file/path/mustache.mustache
-    files="$@"
-    if [[ -z "$files" ]]; then
-      files="$(echo Public/applets/*/*.mustache)"
+
+    # === Render all mustache files if:
+    if [[ -z "$@" ]]; then
+      IFS=$' '
+      while read -r file
+      do
+        echo ""
+        $0 render_html $file
+      done < <(echo Public/applets/*/*.mustache)
+      exit 0
     fi
 
-    render_html () {
-      local file="$1"
-      echo "=== Rendering: $file"
-      local results
-      results="$(node render.js $layout $file)"
+    file="$1"
+    shift
 
-      local html_file
-      html_file="$(echo "$results" | head -n 1)"
+    if [[ "$file" =~ "layout.mustache" ]]; then
+      echo "=== Skipping: $file"
+      exit 0
+    fi
 
-      local contents
-      contents="$(echo "$results" | tail -n +2)"
+    echo "=== Rendering: $file"
+    results="$(node render.js $layout $file)"
+    html_file="$(echo "$results" | head -n 1)"
+    contents="$(echo "$results" | tail -n +2)"
+    html_dir="$(dirname $html_file)"
 
-      local html_valid="true"
-      local html_dir="$(dirname $html_file)"
+    if [[ ! -d "$html_dir" ]]; then
+      mkdir -p "$html_dir"
+      echo "=== Created dir: ${html_dir}"
+    fi
 
-      if [[ ! -d "$html_dir" ]]; then
-        mkdir -p "$html_dir"
-        echo "=== Created dir: ${html_dir}"
-      fi
-
-      echo "$contents" > $html_file
-      $0 validate_html $html_file
-    }
-
-    IFS=$' '
-    for file in $files
-    do
-      echo ""
-      if [[ "$file" =~ "layout.mustache" ]]; then
-        echo "=== Skipping: $file"
-      else
-        render_html "$file"
-      fi
-    done
+    echo "$contents" > $html_file
+    $0 validate_html $html_file
     ;;
 
   "render")
@@ -172,8 +180,6 @@ case "$action" in
   "watch")
     # ===  $ bin/megauni.js  watch
     # ===  $ bin/megauni.js  watch   fast
-    eval "$(bash_setup setup_traps)"
-    setup_traps
 
     if [[ ! "$@" =~ "fast" ]]; then
       $0 jshint! || :
