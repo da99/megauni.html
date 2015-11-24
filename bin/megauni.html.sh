@@ -5,22 +5,20 @@
 
 # Array is used.
 # Inspired from: http://stackoverflow.com/a/3811396/841803
-restart_args=("$@")
-
+orig_args=("$@")
 action="$1"
-layout="Public/applets/MUE/layout.mustache"
-html_files=(
-  ./Public/403.html
-  ./Public/404.html
-  ./Public/500.html
-)
 shift
 
 set -u -e -o pipefail
 
-# ==============================================================
-# === Color codes: =============================================
+layout="Public/applets/MUE/layout.mustache"
+error_files=(
+  ./Public/403.html
+  ./Public/404.html
+  ./Public/500.html
+)
 
+# === Color codes: =============================================
 # FROM: http://www.ibm.com/developerworks/aix/library/au-learningtput/
 # FROM: http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 GREEN=$(tput setaf 2)
@@ -36,17 +34,7 @@ BG_RED='\e[1;31m'
 
 case "$action" in
 
-  "help")
-    echo ""
-    echo "  $ bin/megauni.js  watch"
-    echo "  $ bin/megauni.js  watch   fast"
-    echo ""
-    echo "  $ bin/megauni.js  render_stylus"
-    echo "  $ bin/megauni.js  render_stylus   path/to/file.styl"
-    echo ""
-    echo "  $ bin/megauni.js  render_html"
-    echo "  $ bin/megauni.js  render_html    file/path/mustache.mustache"
-    echo ""
+  "help"|"--help")
     bash_setup print_help $0
     exit 0
     ;;
@@ -65,6 +53,8 @@ case "$action" in
     ;;
 
   "render_stylus")
+    # ===  $ bin/megauni.js  render_stylus
+    # ===  $ bin/megauni.js  render_stylus   path/to/file.styl
     files="$@"
     if [[ -z "$files" || "$files" =~ "vars.styl" || "$files" =~ "/_" ]]; then
       files="$(echo ./Public/applets/*/*.styl)"
@@ -98,7 +88,7 @@ case "$action" in
   "validate_html")
     htmls="$@"
     if [[ -z "$@" ]] ; then
-      htmls=${html_files[@]}
+      htmls=${error_files[@]}
     fi
 
     for file in $htmls
@@ -122,6 +112,8 @@ case "$action" in
     ;;
 
   "render_html")
+    # ===  $ bin/megauni.js  render_html
+    # ===  $ bin/megauni.js  render_html    file/path/mustache.mustache
     files="$@"
     if [[ -z "$files" ]]; then
       files="$(echo Public/applets/*/*.mustache)"
@@ -174,6 +166,20 @@ case "$action" in
     eval "$(bash_setup setup_traps)"
     setup_traps
 
+     echo "done"
+    ;;
+
+  "watch")
+    # ===  $ bin/megauni.js  watch
+    # ===  $ bin/megauni.js  watch   fast
+    eval "$(bash_setup setup_traps)"
+    setup_traps
+
+    if [[ ! "$@" =~ "fast" ]]; then
+      $0 jshint! || :
+      $0 validate_html || :
+    fi
+
     echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
 
     while read CHANGE
@@ -185,7 +191,7 @@ case "$action" in
 
       echo -e "=== $CHANGE (${path})"
 
-      if [[ "${html_files[@]}" =~ "$path" ]]; then
+      if [[ "${error_files[@]}" =~ "$path" ]]; then
         echo "=== Validating in 2s to let gvim detect change: $path "
         sleep 2s
         $0 validate_html $path
@@ -193,8 +199,8 @@ case "$action" in
 
       if [[ "$path" =~ "$0" ]]; then
         echo ""
-        echo "=== ${GREEN}Reloading${RESET_COLOR}: $0 ${restart_args[@]}"
-        exec $0 ${restart_args[@]}
+        echo "=== ${GREEN}Reloading${RESET_COLOR}: $0 ${orig_args[@]}"
+        break
       fi
 
       if [[ "$file" =~ ".mustache" ]]; then
@@ -231,22 +237,11 @@ case "$action" in
        --exclude "/vendor/"
      )
 
-    ;;
-
-  "watch")
-    eval "$(bash_setup setup_traps)"
-    setup_traps
-
-    if [[ ! "$@" =~ "fast" ]]; then
-      $0 jshint! || :
-      $0 validate_html || :
-    fi
-
-    $0 __watch ${restart_args[@]}
-
+     $0 ${orig_args[@]}
     ;;
 
   *)
+    # === $ bin/megauni.html bower ...
 
     file="$( echo node_modules/*/bin/$action )"
 
