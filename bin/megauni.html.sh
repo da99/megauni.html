@@ -11,13 +11,7 @@ shift
 
 set -u -e -o pipefail
 
-( sleep 6 ) &
 eval "$(bash_setup show_err_line_trap)"
-
-
-
-
-
 
 layout="Public/applets/MUE/layout.mustache"
 error_files=(
@@ -85,7 +79,7 @@ case "$action" in
 
 
   "js_files")
-    find Public/ specs/ -type f -regex ".*.js\$" -and -not -regex ".*/vendor/.*" -printf "%p\n"
+    find ./Public/ ./specs/ -type f -regex ".*.js\$" -and -not -regex ".*/Public/.*" -and -not -regex ".*/vendor/.*" -printf "%p\n"
     ;;
 
   "jshint!")
@@ -127,6 +121,36 @@ case "$action" in
       fi
     fi
 
+    ;;
+
+  "render_typescript")
+    # ===  $ bin/megauni.js  render_typescript   file/path/file.ts
+    # === Turns .ts file into .js file
+    file="$1"
+    shift
+    new_file="$(dirname $file)/$(basename $file .ts).es6"
+    echo -n "=== Typescript: $file: "
+    node_modules/typescript/bin/tsc --target ES6 $file --outFile $new_file
+    echo "${GREEN}Passed${RESET_COLOR}"
+    ;;
+
+  "render_js")
+    # ===  $ bin/megauni.js  render_js   file/path/file.js
+    # === Runs it through Babel and jshint
+    file="$1"
+    shift
+    new_file="$(dirname $file)/$(basename $file .es6).js"
+    if [[ "$file" == *Public/* ]]; then
+      echo -n "=== Babel: $file: "
+      node_modules/babel-cli/bin/babel.js $file --out-file $new_file
+      echo "${GREEN}Passed${RESET_COLOR}"
+      [[ "$file" == *.es6 ]] && rm $file || :
+    else
+      js_setup jshint! $file
+      if [[ "$(readlink --canonicalize $file)" == "$(readlink --canonicalize render.js)" ]] ; then
+        $0 render_html
+      fi
+    fi
     ;;
 
   "render_html")
@@ -195,11 +219,10 @@ case "$action" in
       path="${dir}$(echo "$CHANGE" | cut -d' ' -f 3)"
       file="$(basename $path)"
 
-      echo -e "=== $CHANGE (${path})"
+      echo -e "\n=== $CHANGE (${path})"
 
       if [[ "$path" == "$0" ]]; then
         echo "=== ${GREEN}Reloading${RESET_COLOR}: $0 ${orig_args[@]}"
-        echo ""
         break
       fi
 
@@ -224,16 +247,14 @@ case "$action" in
       if [[ "$path" == *.json && ! "$path" =~ "bin/" ]]; then
         js_pass="true"
         js_setup jshint! $path || js_pass=""
-        echo ""
       fi
 
-      if [[ "$path" == *.js && ! "$path" =~ "bin/" ]]; then
+      if [[ "$path" == *.ts ]]; then
+        $0 render_typescript $path || :
+      fi
 
-        if js_setup jshint! $path; then
-           [[ "$file" == "render.js" ]] && $0 render_html || :
-        fi
-
-        echo ""
+      if [[ "$path" == *.es6 && ! "$path" =~ "bin/" ]]; then
+        $0 render_js $path || :
       fi
     done < <(
      inotifywait \
