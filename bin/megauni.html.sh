@@ -129,27 +129,33 @@ case "$action" in
     file="$1"
     shift
     new_file="$(dirname $file)/$(basename $file .ts).es6"
+    es6_file="$(mktemp)"
+
     echo -n "=== Typescript: $file: "
-    node_modules/typescript/bin/tsc --target ES6 $file --outFile $new_file
+    node_modules/typescript/bin/tsc --target ES6 $file --outFile $es6_file
     echo "${GREEN}Passed${RESET_COLOR}"
+    $0 render_js $es6_file $new_file
     ;;
 
   "render_js")
-    # ===  $ bin/megauni.js  render_js   file/path/file.js
+    # ===  $ bin/megauni.js  render_js   file/path/file.js                      # file is jshint!, no Babel
+    # ===  $ bin/megauni.js  render_js   file/path/file.js   path/to/output.js  # Run through Babel
     # === Runs it through Babel and jshint
     file="$1"
     shift
-    new_file="$(dirname $file)/$(basename $file .es6).js"
-    if [[ "$file" == *Public/* ]]; then
-      echo -n "=== Babel: $file: "
-      node_modules/babel-cli/bin/babel.js $file --out-file $new_file
-      echo "${GREEN}Passed${RESET_COLOR}"
-      [[ "$file" == *.es6 ]] && rm $file || :
-    else
+
+    if [[ -z "$@" ]]; then
       js_setup jshint! $file
       if [[ "$(readlink --canonicalize $file)" == "$(readlink --canonicalize render.js)" ]] ; then
         $0 render_html
       fi
+
+    else
+      new_file="$(dirname $1)/$(basename $1 .es6).js"
+      shift
+      echo -n "=== Babel: $file => $new_file: "
+      node_modules/babel-cli/bin/babel.js $file --out-file $new_file
+      echo "${GREEN}Passed${RESET_COLOR}"
     fi
     ;;
 
@@ -253,7 +259,7 @@ case "$action" in
         $0 render_typescript $path || :
       fi
 
-      if [[ "$path" == *.es6 && ! "$path" =~ "bin/" ]]; then
+      if [[ "$path" == *.js ]]; then
         $0 render_js $path || :
       fi
     done < <(

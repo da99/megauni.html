@@ -1,7 +1,7 @@
-"use strict"
 /* jshint undef: true, unused: true */
 /* global MegaUni, Applet */
-;
+"use strict";
+
 var APP;
 $(function () {
     var form_success = function form_success(o) {

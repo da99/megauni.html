@@ -1,13 +1,14 @@
-"use strict";
-declare var _, $, MegaUni, Applet;
 /* jshint undef: true, unused: true */
 /* global MegaUni, Applet */
+"use strict";
+
+declare var _, $, MegaUni, Applet;
 
 var APP;
 
 $(function () {
 
-  var form_success = function (o) {
+  var form_success = function (o): void {
     if (o.name !== 'ajax response')
       return;
 
