@@ -133,6 +133,7 @@ case "$action" in
 
     echo -n "=== Typescript: $file: "
     node_modules/typescript/bin/tsc --target ES6 $file --outFile $es6_file
+    rm $es6_file
     echo "${GREEN}Passed${RESET_COLOR}"
     $0 render_js $es6_file $new_file
     ;;
