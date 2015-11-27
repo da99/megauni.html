@@ -1,3 +1,4 @@
 /node_modules
 /Public/vendor/bower
 /Public/tmp
+/Public/scripts/typings
