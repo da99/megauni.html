@@ -1,12 +1,13 @@
 /* jshint undef: true, unused: true */
 /* global MegaUni, Applet */
 "use strict";
-
 var APP;
 $(function () {
-    var form_success = function form_success(o) {
-        if (o.name !== 'ajax response') return;
-        if (o.response.error) return;
+    var form_success = function (o) {
+        if (o.name !== 'ajax response')
+            return;
+        if (o.response.error)
+            return;
         var form = $('#' + o.request.form_id);
         form.trigger('reset');
         switch (o.request.form_id) {
@@ -23,3 +24,4 @@ $(function () {
         "logged_in?": false
     });
 }); // === MegaUni
+//# sourceMappingURL=script.js.map
