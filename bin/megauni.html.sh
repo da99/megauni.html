@@ -58,9 +58,9 @@ case "$action" in
     $0 render
     ;;
 
-  "render_stylus")
-    # ===  $ bin/megauni.js  render_stylus
-    # ===  $ bin/megauni.js  render_stylus   path/to/file.styl
+  "compile_stylus")
+    # ===  $ bin/megauni.js  compile_stylus
+    # ===  $ bin/megauni.js  compile_stylus   path/to/file.styl
     files="$@"
     if [[ -z "$files" || "$files" =~ "vars.styl" || "$files" =~ "/_" ]]; then
       files="$(echo ./Public/applets/*/*.styl)"
@@ -82,13 +82,29 @@ case "$action" in
     find ./Public/ ./specs/ -type f -regex ".*.js\$" -and -not -regex ".*/Public/.*" -and -not -regex ".*/vendor/.*" -printf "%p\n"
     ;;
 
-  "jshint!")
-    while read  file
-    do
-      if [[ -f "$file" ]]; then
-        js_setup jshint! "$file" || (echo "=== jshint failed: $file" 1>&2 && exit 1)
-      fi
-    done < <($0 js_files)
+  "validate_js")
+
+    if [[ -z "$@" ]]; then # === validate all .js files
+      while read  file
+      do
+        if [[ -f "$file" ]]; then
+          js_setup jshint! "$file" || (echo "=== jshint failed: $file" 1>&2 && exit 1)
+        fi
+      done < <($0 js_files)
+      exit 0
+    fi
+
+    file="$1"
+    shift
+    if [[ "$file" =~ "bin/" ]]; then
+      echo "=== Skipping bin fie: $file" 1>&2
+      exit 0
+    fi
+
+    js_setup jshint! "$file"
+    if [[ "$(readlink --canonicalize $file)" == "$(readlink --canonicalize render.js)" ]] ; then
+      $0 compile_mustache
+    fi
     ;;
 
   "validate_html")
@@ -123,46 +139,46 @@ case "$action" in
 
     ;;
 
-  "render_typescript")
-    # ===  $ bin/megauni.js  render_typescript   file/path/file.ts
-    # === Turns .ts file into .js file
+  "compile_typescript")
+    # ===  $ bin/megauni.js  compile_typescript
+    # ===  $ bin/megauni.js  compile_typescript   file/path/file.ts
+    # === Turns .ts file into temp file for compile_es6
+
+    if [[ -z "$@" ]]; then
+      tsc
+      exit 0
+    fi
+
     file="$1"
     shift
     new_file="$(dirname $file)/$(basename $file .ts).es6"
     es6_file="$(mktemp)"
 
     echo -n "=== Typescript: $file: "
-    node_modules/typescript/bin/tsc --target ES6 $file --outFile $es6_file
+    tsc --target ES6 $file --outFile $es6_file
     rm $es6_file
     echo "${GREEN}Passed${RESET_COLOR}"
-    $0 render_js $es6_file $new_file
+    $0 compile_es6 $es6_file $new_file
     ;;
 
-  "render_js")
-    # ===  $ bin/megauni.js  render_js   file/path/file.js                      # file is jshint!, no Babel
-    # ===  $ bin/megauni.js  render_js   file/path/file.js   path/to/output.js  # Run through Babel
+  "compile_es6")
+    # ===  $ bin/megauni.js  compile_es6   /tmp/file.path  path/to/output.js
     # === Runs it through Babel and jshint
     file="$1"
     shift
 
-    if [[ -z "$@" ]]; then
-      js_setup jshint! $file
-      if [[ "$(readlink --canonicalize $file)" == "$(readlink --canonicalize render.js)" ]] ; then
-        $0 render_html
-      fi
+    new_file="$(dirname $1)/$(basename $1 .es6).js"
+    shift
 
-    else
-      new_file="$(dirname $1)/$(basename $1 .es6).js"
-      shift
-      echo -n "=== Babel: $file => $new_file: "
-      node_modules/babel-cli/bin/babel.js $file --out-file $new_file
-      echo "${GREEN}Passed${RESET_COLOR}"
-    fi
+    echo -n "=== Babel: $file => $new_file: "
+    node_modules/babel-cli/bin/babel.js $file --out-file $new_file
+    echo "${GREEN}Passed${RESET_COLOR}"
     ;;
 
-  "render_html")
-    # ===  $ bin/megauni.js  render_html
-    # ===  $ bin/megauni.js  render_html    file/path/mustache.mustache
+
+  "compile_mustache")
+    # ===  $ bin/megauni.js  compile_mustache
+    # ===  $ bin/megauni.js  compile_mustache    file/path/mustache.mustache
 
     # === Render all mustache files if:
     if [[ -z "$@" ]]; then
@@ -170,7 +186,7 @@ case "$action" in
       while read -r file
       do
         echo ""
-        $0 render_html $file
+        $0 compile_mustache $file
       done < <(echo Public/applets/*/*.mustache)
       exit 0
     fi
@@ -184,37 +200,40 @@ case "$action" in
     fi
 
     echo "=== Rendering: $file"
-    results="$(node render.js $layout $file)"
-    html_file="$(echo "$results" | head -n 1)"
-    contents="$(echo "$results" | tail -n +2)"
-    html_dir="$(dirname $html_file)"
+    meta="$(node render.js $layout $file)"
+    path="$(echo "$meta" | head -n 1)"
+    dir="$(dirname $path)"
+    html="$(echo "$meta" | tail -n +2)"
 
-    if [[ ! -d "$html_dir" ]]; then
-      mkdir -p "$html_dir"
-      echo "=== Created dir: ${html_dir}"
+    if [[ ! -d "$dir" ]]; then
+      mkdir -p "$dir"
+      echo "=== Created dir: ${dir}"
     fi
 
-    echo "$contents" > $html_file
-    $0 validate_html $html_file
+    echo "$html" > $path
+    $0 validate_html $path
     ;;
 
   "render")
     # === $ render
-    # === 1) Validates .js files using "jshint".
-    # === 2) Renders all stylus files.
-    # === 3) Renders all mustache templates.
-    $0 jshint!
-    $0 render_stylus
-    $0 render_html
+    # === * Compiles TypeScript
+    # === * Validates .js files
+    # === * Renders all stylus files.
+    # === * Renders all mustache templates.
+    $0 compile_stylus
+    $0 compile_mustache
+    $0 compile_typescript
+    $0 validate_js
     ;;
 
   "watch")
+    echo ""
+
     # ===  $ bin/megauni.js  watch
     # ===  $ bin/megauni.js  watch   fast
 
     if [[ ! "$@" =~ "fast" ]]; then
-      $0 jshint! || :
-      $0 validate_html || :
+      $0 render || :
     fi
 
     echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
@@ -241,27 +260,26 @@ case "$action" in
 
       if [[ "$file" == *.mustache ]]; then
         if [[ "$file" == "layout.mustache" ]]; then
-          $0 render_html
+          $0 compile_mustache
         else
-          $0 render_html "$path"
+          $0 compile_mustache "$path"
         fi
       fi
 
       if [[ "$file" == *.styl ]]; then
-        $0 render_stylus "$path"
-      fi
-
-      if [[ "$path" == *.json && ! "$path" =~ "bin/" ]]; then
-        js_pass="true"
-        js_setup jshint! $path || js_pass=""
+        $0 compile_stylus "$path"
       fi
 
       if [[ "$path" == *.ts ]]; then
-        $0 render_typescript $path || :
+        $0 compile_typescript $path || :
+      fi
+
+      if [[ "$path" == *.json ]]; then
+        $0 validate_js $path || :
       fi
 
       if [[ "$path" == *.js ]]; then
-        $0 render_js $path || :
+        $0 validate_js $path || :
       fi
     done < <(
      inotifywait \
