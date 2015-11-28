@@ -79,20 +79,34 @@ case "$action" in
 
 
   "js_files")
-    find ./Public/ ./specs/ -type f -regex ".*.js\$" -and -not -regex ".*/Public/.*" -and -not -regex ".*/vendor/.*" -printf "%p\n"
+    find ./Public/ ./specs/    \
+      -type f                  \
+      -regex ".*\.js\$"        \
+      -and -not -regex ".*/Public/.*" \
+      -and -not -regex ".*/vendor/.*" \
+      -printf "%p\n"
+    ;;
+
+  "typescript_files")
+    find ./Public ./specs       \
+      -type f                   \
+      -regex ".*\.ts\$"         \
+      -and -not -regex ".*\.d\.ts$"   \
+      -and -not -regex ".*/vendor/.*" \
+      -printf "%p\n"
     ;;
 
   "validate_js")
+    # ===  $ bin/megauni.js  validate_js
+    # ===  $ bin/megauni.js  validate_js   file/path/file.js
 
     if [[ -z "$@" ]]; then # === validate all .js files
       while read  file
       do
-        if [[ -f "$file" ]]; then
-          js_setup jshint! "$file" || (echo "=== jshint failed: $file" 1>&2 && exit 1)
-        fi
+        js_setup jshint! "$file" || { exit_stat=$?; echo -e "=== jshint ${RED}failed${RESET_COLOR}: $file" 1>&2; exit $exit_stat; }
       done < <($0 js_files)
       exit 0
-    fi
+    fi # ================================================
 
     file="$1"
     shift
@@ -145,9 +159,12 @@ case "$action" in
     # === Turns .ts file into temp file for compile_es6
 
     if [[ -z "$@" ]]; then
-      tsc
+      while read file
+      do
+        $0 compile_typescript "$file"
+     done < <($0 typescript_files)
       exit 0
-    fi
+    fi # ================================================
 
     file="$1"
     shift
@@ -155,7 +172,15 @@ case "$action" in
     es6_file="$(mktemp)"
 
     echo -n "=== Typescript: $file: "
-    tsc --target ES6 $file --outFile $es6_file
+    tsc  \
+      --noImplicitAny \
+      --sourceMap     \
+      --target ES6 $file \
+      --out $es6_file  || { \
+      exit_stat=$?;             \
+      echo -e "=== typescript ${RED}failed${RESET_COLOR}: $file" 1>&2; \
+      exit $exit_stat; \
+    }
     rm $es6_file
     echo "${GREEN}Passed${RESET_COLOR}"
     $0 compile_es6 $es6_file $new_file
