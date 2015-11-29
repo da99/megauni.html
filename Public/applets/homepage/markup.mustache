@@ -27,10 +27,19 @@
       <div class="block form">
         <h3>Log-In</h3>
         <div class="content">
-          <form action="/sign-in" id="sign_in" method="post">
+          <form action="/sign-in" id="sign_in" method="post" data-on_respond_ok="wait_a_few, reload">
             <div class="fields">
-              <div class="field screen_name"><label >Screen name:</label><input name="screen_name" type="text" value="" /></div>
-              <div class="field passphrase"><label >Pass phrase:</label><input name="pswd" type="password" value="" /></div>
+              <div class="field screen_name"><label>Screen name:</label><input name="screen_name" type="text" value="" /></div>
+              <div class="field passphrase"><label>Pass phrase:</label><input name="pswd" type="password" value="" /></div>
+
+              <script type="text/mustache" data-render_if="logged_in?">
+                <div class="success_msg">You are now logged in. Loading...</div>
+              </script>
+
+              <script type="text/mustache" data-render_if="error /sign-in">
+                <div class="error_msg">{{msg}}</div>
+              </script>
+
               <div class="field buttons"><button class="submit">Log-In</button></div>
             </div>
           </form>
@@ -40,7 +49,7 @@
       <div class="block form">
         <h3>Create a New Account</h3>
         <div class="content">
-          <form action="/user" id="create_account" method="post" data-on_respond_ok=":reload">
+          <form action="/user" id="create_account" method="post" data-on_respond_ok="wait_a_few, reload">
             <div class="fields">
 
               <div class="field screen_name">
@@ -57,9 +66,20 @@
                 <input name="pswd" type="password" value="" />
               </div>
 
-              <div class="field confirm_pass_phrase"><label >
-                  <span class="main">Re-type the pass phrase:</span></label><input name="confirm_pass_word" type="password" value="" /></div>
-              <div class="buttons"><input name="_csrf" type="hidden" value="{{_csrf}}" /><button class="submit">Create Account</button></div>
+              <div class="field confirm_pass_phrase">
+                <label><span class="main">Re-type the pass phrase:</span></label>
+                <input name="confirm_pass_word" type="password" value="" />
+              </div>
+
+              <script type="text/mustache" data-render_if="logged_in?">
+                <div class="success_msg">You account has been created. Loading...</div>
+              </script>
+
+              <script type="text/mustache" data-render_if="error /user">
+                <div class="error_msg">{{msg}}</div>
+              </script>
+
+              <div class="buttons"><button class="submit">Create Account</button></div>
             </div>
           </form>
         </div>

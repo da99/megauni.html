@@ -1,14 +1,16 @@
+/// <reference path="../../scripts/types/lodash/lodash.d.ts"/>
+/// <reference path="../../scripts/types/jquery/jquery.d.ts"/>
+declare var MegaUni: any, Applet: any;
 /* jshint undef: true, unused: true */
 /* global MegaUni, Applet */
 "use strict";
 
-declare var _, $, MegaUni, Applet;
 
-var APP;
+var APP: any;
 
 $(function () {
 
-  var form_success = function (o): void {
+  var form_success = function (o: any): void {
     if (o.name !== 'ajax response')
       return;
 

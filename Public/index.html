@@ -36,45 +36,47 @@
           &#x3C;div class=&#x22;block form&#x22;&#x3E;
             &#x3C;h3&#x3E;Log-In&#x3C;/h3&#x3E;
             &#x3C;div class=&#x22;content&#x22;&#x3E;
-              &#x3C;form action=&#x22;/sign-in&#x22; id=&#x22;sign_in&#x22; method=&#x22;post&#x22;&#x3E;
+              &#x3C;form action=&#x22;/sign-in&#x22; id=&#x22;sign_in&#x22; method=&#x22;post&#x22; data-on_respond_ok=&#x22;wait_a_few, reload&#x22;&#x3E;
                 &#x3C;div class=&#x22;fields&#x22;&#x3E;
-                  &#x3C;div class=&#x22;field screen_name&#x22;&#x3E;&#x3C;label &#x3E;Screen name:&#x3C;/label&#x3E;&#x3C;input name=&#x22;screen_name&#x22; type=&#x22;text&#x22; value=&#x22;&#x22; /&#x3E;&#x3C;/div&#x3E;
-                  &#x3C;div class=&#x22;field passphrase&#x22;&#x3E;&#x3C;label &#x3E;Pass phrase:&#x3C;/label&#x3E;&#x3C;input name=&#x22;pswd&#x22; type=&#x22;password&#x22; value=&#x22;&#x22; /&#x3E;&#x3C;/div&#x3E;
-                  &#x3C;div class=&#x22;field buttons&#x22;&#x3E;&#x3C;button class=&#x22;submit&#x22;&#x3E;Log-In&#x3C;/button&#x3E;&#x3C;/div&#x3E;
-                &#x3C;/div&#x3E;
-              &#x3C;/form&#x3E;
-            &#x3C;/div&#x3E;
-          &#x3C;/div&#x3E;
+                  &#x3C;div class=&#x22;field screen_name&#x22;&#x3E;&#x3C;label&#x3E;Screen name:&#x3C;/label&#x3E;&#x3C;input name=&#x22;screen_name&#x22; type=&#x22;text&#x22; value=&#x22;&#x22; /&#x3E;&#x3C;/div&#x3E;
+                  &#x3C;div class=&#x22;field passphrase&#x22;&#x3E;&#x3C;label&#x3E;Pass phrase:&#x3C;/label&#x3E;&#x3C;input name=&#x22;pswd&#x22; type=&#x22;password&#x22; value=&#x22;&#x22; /&#x3E;&#x3C;/div&#x3E;
 
-          &#x3C;div class=&#x22;block form&#x22;&#x3E;
-            &#x3C;h3&#x3E;Create a New Account&#x3C;/h3&#x3E;
-            &#x3C;div class=&#x22;content&#x22;&#x3E;
-              &#x3C;form action=&#x22;/user&#x22; id=&#x22;create_account&#x22; method=&#x22;post&#x22; data-on_respond_ok=&#x22;:reload&#x22;&#x3E;
-                &#x3C;div class=&#x22;fields&#x22;&#x3E;
-
-                  &#x3C;div class=&#x22;field screen_name&#x22;&#x3E;
-                    &#x3C;label&#x3E;Screen name:&#x3C;/label&#x3E;
-                    &#x3C;input name=&#x22;screen_name&#x22; type=&#x22;text&#x22; value=&#x22;&#x22; /&#x3E;
-                  &#x3C;/div&#x3E;
-
-                  &#x3C;div class=&#x22;field pswd&#x22;&#x3E;
-                    &#x3C;label&#x3E;
-                      &#x3C;span class=&#x22;main&#x22;&#x3E;Pass phrase&#x3C;/span&#x3E;
-                      &#x3C;span class=&#x22;sub&#x22;&#x3E; (for better security, use spaces and words)&#x3C;/span&#x3E;
-                      &#x3C;span class=&#x22;main&#x22;&#x3E;:&#x3C;/span&#x3E;
-                    &#x3C;/label&#x3E;
-                    &#x3C;input name=&#x22;pswd&#x22; type=&#x22;password&#x22; value=&#x22;&#x22; /&#x3E;
-                  &#x3C;/div&#x3E;
-
-                  &#x3C;div class=&#x22;field confirm_pass_phrase&#x22;&#x3E;&#x3C;label &#x3E;
-                      &#x3C;span class=&#x22;main&#x22;&#x3E;Re-type the pass phrase:&#x3C;/span&#x3E;&#x3C;/label&#x3E;&#x3C;input name=&#x22;confirm_pass_word&#x22; type=&#x22;password&#x22; value=&#x22;&#x22; /&#x3E;&#x3C;/div&#x3E;
-                  &#x3C;div class=&#x22;buttons&#x22;&#x3E;&#x3C;input name=&#x22;_csrf&#x22; type=&#x22;hidden&#x22; value=&#x22;{{_csrf}}&#x22; /&#x3E;&#x3C;button class=&#x22;submit&#x22;&#x3E;Create Account&#x3C;/button&#x3E;&#x3C;/div&#x3E;
-                &#x3C;/div&#x3E;
-              &#x3C;/form&#x3E;
-            &#x3C;/div&#x3E;
-          &#x3C;/div&#x3E;
-
-  </script><!-- text/mustache !logged_in? -->
+                  &#x3C;script type=&#x22;text/mustache&#x22; data-render_if=&#x22;logged_in?&#x22;&#x3E;
+                    &#x3C;div class=&#x22;success_msg&#x22;&#x3E;You are now logged in. Loading...&#x3C;/div&#x3E;
+  </script> 
+  <script type="text/mustache" data-render_if="error /sign-in">
+                    &#x3C;div class=&#x22;error_msg&#x22;&#x3E;{{msg}}&#x3C;/div&#x3E;
+  </script>
+  <div class="field buttons">
+    <button class="submit">Log-In</button>
+  </div>
+  <div class="block form">
+    <h3>Create a New Account</h3>
+    <div class="content">
+      <form action="/user" id="create_account" method="post" data-on_respond_ok="wait_a_few, reload" name="create_account">
+        <div class="fields">
+          <div class="field screen_name">
+            <label>Screen name:</label> <input name="screen_name" type="text" value="">
+          </div>
+          <div class="field pswd">
+            <label><span class="main">Pass phrase</span> <span class="sub">(for better security, use spaces and words)</span> <span class="main">:</span></label> <input name="pswd" type="password" value="">
+          </div>
+          <div class="field confirm_pass_phrase">
+            <label><span class="main">Re-type the pass phrase:</span></label> <input name="confirm_pass_word" type="password" value="">
+          </div>
+          <script type="text/mustache" data-render_if="logged_in?">
+                    &#x3C;div class=&#x22;success_msg&#x22;&#x3E;You account has been created. Loading...&#x3C;/div&#x3E;
+          </script> 
+          <script type="text/mustache" data-render_if="error /user">
+                    &#x3C;div class=&#x22;error_msg&#x22;&#x3E;{{msg}}&#x3C;/div&#x3E;
+          </script>
+          <div class="buttons">
+            <button class="submit">Create Account</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div><!-- text/mustache !logged_in? -->
   <div class="block" id="intro">
     <h1 class="site"><span class="main">mega</span><span class="sub">UNI</span></h1>
     <p><a href="/home">/home</a></p>

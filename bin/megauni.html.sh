@@ -168,35 +168,44 @@ case "$action" in
 
     file="$1"
     shift
-    new_file="$(dirname $file)/$(basename $file .ts).es6"
-    es6_file="$(mktemp)"
+    es6_file="$(dirname $file)/$(basename $file .ts).es6"
+    new_file="$(dirname $file)/$(basename $file .ts).js"
 
-    echo -n "=== Typescript: $file: "
+    echo ""
+    echo -e "=== Compiling typescript: $file: "
     tsc  \
       --noImplicitAny \
       --sourceMap     \
       --target ES6 $file \
       --out $es6_file  || { \
       exit_stat=$?;             \
+      tput cuu1; tput el;      \
       echo -e "=== typescript ${RED}failed${RESET_COLOR}: $file" 1>&2; \
       exit $exit_stat; \
     }
-    rm $es6_file
-    echo "${GREEN}Passed${RESET_COLOR}"
+
+    tput cuu1; tput el;
+    echo -e "=== Typescript: $file: ${GREEN}Passed${RESET_COLOR}"
     $0 compile_es6 $es6_file $new_file
+    rm $es6_file
     ;;
 
   "compile_es6")
+    # ===  $ bin/megauni.js  compile_es6   /tmp/file.path
     # ===  $ bin/megauni.js  compile_es6   /tmp/file.path  path/to/output.js
-    # === Runs it through Babel and jshint
+    # === Runs it through Babel.
     file="$1"
     shift
 
-    new_file="$(dirname $1)/$(basename $1 .es6).js"
-    shift
+    if [[ -z "$@" ]]; then
+      new_file="$(dirname $1)/$(basename $1 .es6).js"
+    else
+      new_file="$1"
+      shift
+    fi
 
     echo -n "=== Babel: $file => $new_file: "
-    node_modules/babel-cli/bin/babel.js $file --out-file $new_file
+    babel -s true --out-file $new_file $file
     echo "${GREEN}Passed${RESET_COLOR}"
     ;;
 
@@ -261,7 +270,7 @@ case "$action" in
       $0 render || :
     fi
 
-    echo -e "=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
+    echo -e "\n=== Watching ${ORANGE}$(basename $0)${RESET_COLOR} (proc ${$})..."
 
     while read CHANGE
     do

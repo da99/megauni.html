@@ -2,4 +2,5 @@
 /Public/vendor/bower
 /Public/tmp
 /Public/scripts/typings
+/Public/scripts/types
 tsd-debug.log
