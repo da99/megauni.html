@@ -1,9 +1,8 @@
-"use strict";
 /* jshint evil : true, esnext: true, undef: true, unused: true */
 /* global $ : true, _ : true, require, process  */
+"use strict";
 
 var $         = require('cheerio');
-var he        = require('he');
 var _         = require('lodash');
 var Hogan     = require('hogan.js');
 var co        = require('co');
@@ -100,7 +99,6 @@ co(function *() {
 
     if (!templates[dir][name])
       templates[dir][name] = {};
-
     templates[dir][name] = _.extend(
       templates[dir][name],
       {
@@ -124,12 +122,15 @@ co(function *() {
       if (name === 'layout')
         return;
 
+
       var final_html = compiled_to_compiler(layout.code).render(meta.attrs, {markup: compiled_to_compiler(meta.code)});
 
-      var dom = $(final_html);
-      _.each(dom.find('script[type]'), function (node) {
+      var q = $.load(final_html, {decodeEntities: false});
+
+      _.each(q('script[type]'), function (node) {
         if (node.attribs.type.match(/javascript/i))
           return;
+
         $(node).text(he.encode($(node).html() || ''));
       });
 
@@ -139,37 +140,10 @@ co(function *() {
         console.log(meta.file_name);
       }
 
-      console.log($.html(dom));
-
+      console.log(q.html());
     });
   });
 
-
-  // yield _.map(new_files, function (pair) {
-    // return co_fs.writeFile(pair[0], pair[1]);
-  // });
-
-  // _.each(new_files, function (pair) {
-    // console.log("=== Wrote: %s", pair[0]);
-  // });
-
-  // === Save the compiled templates to: templates.js
-  // var templates_mustache = (yield co_fs.readFile('templates.js.mustache')).toString();
-
-  // yield co_fs.writeFile(
-    // 'templates.js',
-    // Hogan
-    // .compile(templates_mustache)
-    // .render({code: JSON.stringify(templates)})
-  // );
-
-  // if (_.isEmpty(templates)) {
-    // console.log("=== Templates cleared.");
-  // } else {
-    // console.log("=== Templates rendered: " + _.map(files, function (f) {
-      // return f.match(/[^\/]+\/[^\/]+\.mustache$/)[0];
-    // }).join(', '));
-  // }
 
 
 }).catch(show_err);
