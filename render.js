@@ -125,7 +125,12 @@ co(function *() {
 
       var final_html = compiled_to_compiler(layout.code).render(meta.attrs, {markup: compiled_to_compiler(meta.code)});
 
-      var q = $.load(final_html, {decodeEntities: false});
+      var q = $.load(
+        final_html, {
+          decodeEntities: false
+          // === Prevents &apos; to be used. Cheerio sets it to true to fix some other bug.
+        }
+      );
 
       _.each(q('script[type]'), function (node) {
         if (node.attribs.type.match(/javascript/i))

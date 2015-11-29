@@ -140,7 +140,7 @@ case "$action" in
     contents="$(cat $file)"
     new_contents="$(tidy -config tidy.configs.txt "$file")" || new_contents="fail"
     if [[ "$new_contents" == "fail"  ]]; then
-      echo "${RED}Fail${RESET_COLOR}" 1>&2
+      echo -e "${RED}Fail${RESET_COLOR}" 1>&2
     else
       if [[ "$contents" == "$new_contents" ]]; then
         echo "${GREEN}Passed.${RESET_COLOR}" 1>&2

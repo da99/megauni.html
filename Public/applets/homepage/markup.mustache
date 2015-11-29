@@ -7,55 +7,66 @@
 <!-- scripts
   <script src="/applets/homepage/script.js"></script>
 -->
+<!-- meta
+  <meta name="Description" CONTENT="Sign-In or Create an Account if you don't have one." />
+-->
+
 
     <div id="loading" data-hide_if="page_loaded?">
       Loading...
     </div>
 
-    <div class="hidden block" data-show_if="logged_in?">
-      <p>You are logged in.</p>
-    </div>
-
-    <div class="hidden block form" data-show_if="!logged_in?">
-      <h3>Log-In</h3>
-      <div class="content">
-        <form action="/sign-in" id="sign_in" method="post">
-          <div class="fields">
-            <div class="field screen_name"><label >Screen name:</label><input name="screen_name" type="text" value="" /></div>
-            <div class="field passphrase"><label >Pass phrase:</label><input name="pswd" type="password" value="" /></div>
-            <div class="field buttons"><button class="submit">Log-In</button></div>
-          </div>
-        </form>
+    <script type="text/mustache" data-render_if="logged_in?">
+      <div class="hidden block" data-show_if="logged_in?">
+        <p>You are logged in.</p>
       </div>
-    </div>
+    </script><!-- if logged_in? -->
 
-    <div class="hidden block form" data-show_if="!logged_in?">
-      <h3>Create a New Account</h3>
-      <div class="content">
-        <form action="/user" id="create_account" method="post" data-on_respond_ok=":reload">
-          <div class="fields">
+    <script type="text/mustache" data-render_if="!logged_in?">
 
-            <div class="field screen_name">
-              <label>Screen name:</label>
-              <input name="screen_name" type="text" value="" />
+      <div class="block form">
+        <h3>Log-In</h3>
+        <div class="content">
+          <form action="/sign-in" id="sign_in" method="post">
+            <div class="fields">
+              <div class="field screen_name"><label >Screen name:</label><input name="screen_name" type="text" value="" /></div>
+              <div class="field passphrase"><label >Pass phrase:</label><input name="pswd" type="password" value="" /></div>
+              <div class="field buttons"><button class="submit">Log-In</button></div>
             </div>
-
-            <div class="field pswd">
-              <label>
-                <span class="main">Pass phrase</span>
-                <span class="sub"> (for better security, use spaces and words)</span>
-                <span class="main">:</span>
-              </label>
-              <input name="pswd" type="password" value="" />
-            </div>
-
-            <div class="field confirm_pass_phrase"><label >
-                <span class="main">Re-type the pass phrase:</span></label><input name="confirm_pass_word" type="password" value="" /></div>
-            <div class="buttons"><input name="_csrf" type="hidden" value="{{_csrf}}" /><button class="submit">Create Account</button></div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
+
+      <div class="block form">
+        <h3>Create a New Account</h3>
+        <div class="content">
+          <form action="/user" id="create_account" method="post" data-on_respond_ok=":reload">
+            <div class="fields">
+
+              <div class="field screen_name">
+                <label>Screen name:</label>
+                <input name="screen_name" type="text" value="" />
+              </div>
+
+              <div class="field pswd">
+                <label>
+                  <span class="main">Pass phrase</span>
+                  <span class="sub"> (for better security, use spaces and words)</span>
+                  <span class="main">:</span>
+                </label>
+                <input name="pswd" type="password" value="" />
+              </div>
+
+              <div class="field confirm_pass_phrase"><label >
+                  <span class="main">Re-type the pass phrase:</span></label><input name="confirm_pass_word" type="password" value="" /></div>
+              <div class="buttons"><input name="_csrf" type="hidden" value="{{_csrf}}" /><button class="submit">Create Account</button></div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </script><!-- text/mustache !logged_in? -->
+
 
     <div class="block" id="intro">
       <h1 class="site"><span class="main">mega</span><span class="sub">UNI</span></h1>
@@ -72,3 +83,6 @@
         <p><span>Palettes: </span><a href="http://www.colourlovers.com/lover/dvdcpd">dvdcpd</a><a href="http://www.colourlovers.com/palette/154398/bedouin">shari_foru</a></p>
       </div>
     </div>
+
+
+
