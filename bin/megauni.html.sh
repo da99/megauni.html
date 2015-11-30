@@ -78,14 +78,24 @@ case "$action" in
     ;;
 
 
-  "js_files")
-    # === $ js_files
+  "all_js_files")
+    # === $ all_js_files
     find ./Public/ ./specs/    \
       -type f                  \
       -regex ".*\.js\$"        \
-      -and -not -regex ".*/Public/.*" \
       -and -not -regex ".*/vendor/.*" \
       -printf "%p\n"
+    ;;
+
+  "js_files")
+    # === $ js_files
+    while read -r FILE
+    do
+      babel_file="$(dirname $FILE)/$(basename $FILE .js).babel.js"
+      if [[ ! -f "$babel_file" ]]; then
+        echo $FILE
+      fi
+    done < <($0 all_js_files)
     ;;
 
   "typescript_files")
@@ -102,10 +112,11 @@ case "$action" in
     # ===  $ bin/megauni.js  validate_js
     # ===  $ bin/megauni.js  validate_js   file/path/file.js
 
+    cmd="js_setup jshint! "
     if [[ -z "$@" ]]; then # === validate all .js files
       while read  file
       do
-        js_setup jshint! "$file" || { exit_stat=$?; echo -e "=== jshint ${RED}failed${RESET_COLOR}: $file" 1>&2; exit $exit_stat; }
+        $cmd "$file" || { exit_stat=$?; echo -e "=== jshint ${RED}failed${RESET_COLOR}: $file" 1>&2; exit $exit_stat; }
       done < <($0 js_files)
       exit 0
     fi # ================================================
@@ -117,7 +128,7 @@ case "$action" in
       exit 0
     fi
 
-    js_setup jshint! "$file"
+    $cmd "$file"
     if [[ "$(readlink --canonicalize $file)" == "$(readlink --canonicalize render.js)" ]] ; then
       $0 compile_mustache
     fi
@@ -158,7 +169,7 @@ case "$action" in
   "compile_typescript")
     # ===  $ bin/megauni.js  compile_typescript
     # ===  $ bin/megauni.js  compile_typescript   file/path/file.ts
-    # === Turns .ts file into temp file for compile_es6
+    # === Turns .ts file into temp file for compile_babel
 
     if [[ -z "$@" ]]; then
       while read file
@@ -199,27 +210,38 @@ case "$action" in
 
     tput cuu1; tput el;
     echo -e "=== Typescript: $file: ${GREEN}Passed${RESET_COLOR}"
-    $0 compile_es6 $new_file
+    $0 compile_babel $new_file
     ;;
 
-  "compile_es6")
-    # ===  $ bin/megauni.js  compile_es6   /tmp/file.js    # ==> --out-file /tmp/file.es3.js
-    # ===  $ bin/megauni.js  compile_es6   /tmp/file.path  path/to/output.js
+
+  "compile_babel")
+    # ===  $ bin/megauni.js  compile_babel   /tmp/file.js    # ==> --out-file /tmp/file.es3.js
+    # ===  $ bin/megauni.js  compile_babel   /tmp/file.path  path/to/output.js
     # === Runs it through Babel.
     file="$1"
     shift
+
+    if [[ "$file" == *.babel.js ]]; then
+      echo -e "=== ${BOLD_WHITE}Skipping Babel compile${RESET_COLOR}: $file"
+      exit 0
+    fi
 
     if [[ -n "$@" ]]; then
       new_file="$1"
       shift
     else
-      new_file="$(dirname "$file")/$(basename "$file" .js).es3.js"
+      new_file="$(dirname "$file")/$(basename "$file" .js).babel.js"
     fi
 
     echo -n "=== Babel: $file => $new_file: "
-    babel -s true --out-file $new_file $file
+    babel -s true --out-file $new_file $file || {                      \
+      exit_stat=$?;                                                    \
+      echo -e "=== Babel ${RED}failed${RESET_COLOR}: $file" 1>&2; \
+      exit $exit_stat;                                                 \
+    }
+
     echo "${GREEN}Passed${RESET_COLOR}"
-    $0 validate_js $file
+    $0 validate_js $new_file
     ;;
 
 
@@ -269,7 +291,6 @@ case "$action" in
     # === * Renders all mustache templates.
     $0 compile_stylus
     $0 compile_mustache
-    $0 compile_typescript
     $0 validate_js
     ;;
 
@@ -325,8 +346,8 @@ case "$action" in
         $0 validate_js $path || :
       fi
 
-      if [[ "$path" == *.js ]] && ! js_setup has_ts $path ; then
-        $0 validate_js $path || :
+      if [[ "$path" == *.js ]]; then
+        $0 compile_babel $path || :
       fi
     done < <(
      inotifywait \

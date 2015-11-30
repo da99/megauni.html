@@ -2,13 +2,11 @@
 /* global Applet, _ */
 "use strict";
 
-
 var Megauni;
 Megauni = {
-  on_respond_ok: function() {
-  },
+    on_respond_ok: function on_respond_ok() {},
 
-  ui_ajax: function(o) {
+    ui_ajax: function ui_ajax(o) {
         // === Clear errors:
         if (o.name === 'dom') {
             $('input[type="text"], textarea').on('keypress', function () {
@@ -28,45 +26,35 @@ Megauni = {
         }
         if (o.name === 'ajax response' && o.request.form_id) {
             var div_form = $('#' + o.request.form_id).closest('div.form');
-            div_form
-                .removeClass('loading')
-                .find('div.loading_msg')
-                .remove();
+            div_form.removeClass('loading').find('div.loading_msg').remove();
             // === Display errors:
             if (o.response.error) {
                 if (_.contains(o.response.error.tags, 'server')) {
                     Applet.log(o.response.error);
                     Applet.log(o.response.error.msg || '[No error msg specified.]');
-                    div_form.find('div.buttons').before($('<div class="error_msg error_server"></div>')
-                        .text('Unknown error. Close this browser window and try again in 30 mins.'));
+                    div_form.find('div.buttons').before($('<div class="error_msg error_server"></div>').text('Unknown error. Close this browser window and try again in 30 mins.'));
                 }
                 if (o.response.error.fields) {
                     _.each(o.response.error.fields || [], function (msg, key) {
                         var field = div_form.find('div.field.' + key + ':first');
                         if (_.isEmpty(field) && key === 'all') {
                             field = div_form.find('div.buttons:last');
-                        }
-                        else {
+                        } else {
                             field.addClass('field_invalid');
                         }
-                        field.after($('<div class="error_msg error_' + key + '"></div>')
-                            .text(msg));
+                        field.after($('<div class="error_msg error_' + key + '"></div>').text(msg));
                     });
                 } // === if error fields
             } // === end: display errors
             // === Display success msg:
             if (o.response.success) {
                 // === reset msg:
-                div_form
-                    .addClass('form_success')
-                    .find('div.success_msg')
-                    .remove();
+                div_form.addClass('form_success').find('div.success_msg').remove();
                 // === add msg:
-                div_form
-                    .find('div.buttons')
-                    .after($('<div class="success_msg"></div>').text(o.response.success.msg));
+                div_form.find('div.buttons').after($('<div class="success_msg"></div>').text(o.response.success.msg));
             } // === end: display success msg
         } // === end: display response
     } // === func ui_ajax
 }; // === Megauni
 
+//# sourceMappingURL=megauni.babel.js.map
