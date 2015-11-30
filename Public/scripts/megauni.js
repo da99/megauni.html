@@ -1,27 +1,31 @@
-/// <reference path="types/lodash/lodash.d.ts"/>
-/// <reference path="types/jquery/jquery.d.ts"/>
 /* jshint undef: true, unused: true */
 /* global Applet */
 "use strict";
-class Megauni {
-    static comma_split(str) {
-        return str.split(',');
-    }
-    static funcs(...names) {
-        return _(names)
-            .map(Megauni.comma_split)
-            .map(_.trim)
-            .flattenDeep()
-            .map(function (key) {
-            if (typeof Megauni[key] === "function")
-                return Megauni[key];
-            throw new Error("Function not found: " + key);
-        })
-            .value();
-    }
-    static on_respond_ok() {
-    }
-    static ui_ajax(o) {
+
+var Megauni;
+Megauni = {
+
+  comma_split: function(str) {
+    return str.split(',');
+  },
+
+  funcs: function(...names) {
+    return _(names)
+    .map(Megauni.comma_split)
+    .map(_.trim)
+    .flattenDeep()
+    .map(function (key) {
+      if (typeof Megauni[key] === "function")
+        return Megauni[key];
+      throw new Error("Function not found: " + key);
+    })
+    .value();
+  },
+
+  on_respond_ok: function() {
+  },
+
+  ui_ajax: function(o) {
         // === Clear errors:
         if (o.name === 'dom') {
             $('input[type="text"], textarea').on('keypress', function () {
@@ -81,6 +85,5 @@ class Megauni {
             } // === end: display success msg
         } // === end: display response
     } // === func ui_ajax
-}
- // === class Megauni
-//# sourceMappingURL=megauni.js.map
+}; // === Megauni
+

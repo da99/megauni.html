@@ -203,14 +203,21 @@ case "$action" in
     ;;
 
   "compile_es6")
-    # ===  $ bin/megauni.js  compile_es6   /tmp/file.path
+    # ===  $ bin/megauni.js  compile_es6   /tmp/file.js    # ==> --out-file /tmp/file.es3.js
     # ===  $ bin/megauni.js  compile_es6   /tmp/file.path  path/to/output.js
     # === Runs it through Babel.
     file="$1"
     shift
 
-    echo -n "=== Babel: $file: "
-    babel -s true --out-file $file $file
+    if [[ -n "$@" ]]; then
+      new_file="$1"
+      shift
+    else
+      new_file="$(dirname "$file")/$(basename "$file" .js).es3.js"
+    fi
+
+    echo -n "=== Babel: $file => $new_file: "
+    babel -s true --out-file $new_file $file
     echo "${GREEN}Passed${RESET_COLOR}"
     $0 validate_js $file
     ;;
