@@ -27,7 +27,13 @@
       <div class="block form">
         <h3>Log-In</h3>
         <div class="content">
-          <form action="/sign-in" id="sign_in" method="post" data-on_respond_ok="wait_a_few, reload">
+          <form
+             action="/sign-in"
+             id="sign_in"
+             method="post"
+             data-on_send="hide_buttons"
+             data-on_respond_ok="reset, wait_a_few, reload"
+             >
             <div class="fields">
               <div class="field screen_name"><label>Screen name:</label><input name="screen_name" type="text" value="" /></div>
               <div class="field passphrase"><label>Pass phrase:</label><input name="pswd" type="password" value="" /></div>
@@ -49,7 +55,13 @@
       <div class="block form">
         <h3>Create a New Account</h3>
         <div class="content">
-          <form action="/user" id="create_account" method="post" data-on_respond_ok="wait_a_few, reload">
+          <form
+            action="/user"
+            id="create_account"
+            method="post"
+            data-on_send="hide_buttons"
+            data-on_respond_ok="reset, wait_a_few, reload"
+            >
             <div class="fields">
 
               <div class="field screen_name">

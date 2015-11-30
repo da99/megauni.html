@@ -79,6 +79,7 @@ case "$action" in
 
 
   "js_files")
+    # === $ js_files
     find ./Public/ ./specs/    \
       -type f                  \
       -regex ".*\.js\$"        \
@@ -88,6 +89,7 @@ case "$action" in
     ;;
 
   "typescript_files")
+    # === $ typescript_files
     find ./Public ./specs       \
       -type f                   \
       -regex ".*\.ts\$"         \
@@ -168,26 +170,36 @@ case "$action" in
 
     file="$1"
     shift
-    es6_file="$(dirname $file)/$(basename $file .ts).es6"
+
+    if [[ "$file" == *.d.ts ]]; then
+      echo "=== Skipping compiling typescript definition file: $file" 1>&2
+      exit 0
+    fi
+
     new_file="$(dirname $file)/$(basename $file .ts).js"
+
+    do_d_ts=""
+    if [[ -f "Public/scripts/$(basename $file .ts).ts" ]]; then
+    do_d_ts=" --declaration "
+    fi
 
     echo ""
     echo -e "=== Compiling typescript: $file: "
     tsc  \
-      --noImplicitAny \
-      --sourceMap     \
-      --target ES6 $file \
-      --out $es6_file  || { \
+      ${do_d_ts}       \
+      --noImplicitAny  \
+      --sourceMap      \
+      --out $new_file  \
+      --target ES6     \
+      $file || { \
       exit_stat=$?;             \
-      tput cuu1; tput el;      \
       echo -e "=== typescript ${RED}failed${RESET_COLOR}: $file" 1>&2; \
       exit $exit_stat; \
     }
 
     tput cuu1; tput el;
     echo -e "=== Typescript: $file: ${GREEN}Passed${RESET_COLOR}"
-    $0 compile_es6 $es6_file $new_file
-    rm $es6_file
+    $0 compile_es6 $new_file
     ;;
 
   "compile_es6")
@@ -197,16 +209,10 @@ case "$action" in
     file="$1"
     shift
 
-    if [[ -z "$@" ]]; then
-      new_file="$(dirname $1)/$(basename $1 .es6).js"
-    else
-      new_file="$1"
-      shift
-    fi
-
-    echo -n "=== Babel: $file => $new_file: "
-    babel -s true --out-file $new_file $file
+    echo -n "=== Babel: $file: "
+    babel -s true --out-file $file $file
     echo "${GREEN}Passed${RESET_COLOR}"
+    $0 validate_js $file
     ;;
 
 
@@ -312,7 +318,7 @@ case "$action" in
         $0 validate_js $path || :
       fi
 
-      if [[ "$path" == *.js ]]; then
+      if [[ "$path" == *.js ]] && ! js_setup has_ts $path ; then
         $0 validate_js $path || :
       fi
     done < <(
