@@ -101,7 +101,7 @@ case "$action" in
     ;;
 
   "json_files")
-    find ./Public/ ./specs/ -type f -regex ".*\.json\$" -and -not -regex ".*/vendor/.*" -printf "%p\n" )
+    find ./Public/ ./specs/ -type f -regex ".*\.json\$" -and -not -regex ".*/vendor/.*" -printf "%p\n"
     ;;
 
   "typescript_files")
@@ -314,8 +314,6 @@ case "$action" in
     ;;
 
   "watch")
-    echo ""
-
     # ===  $ bin/megauni.js  watch
     # ===  $ bin/megauni.js  watch   fast
 
