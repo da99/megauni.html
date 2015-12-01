@@ -5,6 +5,7 @@
 
 # Array is used.
 # Inspired from: http://stackoverflow.com/a/3811396/841803
+IS_DEPLOY="$IS_DEPLOY"
 orig_args=("$@")
 action="$1"
 shift
@@ -78,25 +79,29 @@ case "$action" in
     done
     ;;
 
-
-  "all_js_files")
-    # === $ all_js_files
-    find ./Public/ ./specs/    \
-      -type f                  \
-      -regex ".*\.js\$"        \
-      -and -not -regex ".*/vendor/.*" \
-      -printf "%p\n"
+  "babel_files")
+    while read -r FILE
+    do
+      if [[ "$FILE" == *.babel.js ]]; then
+        echo $FILE
+      fi
+    done < <( $0 js_files )
     ;;
+
 
   "js_files")
     # === $ js_files
-    while read -r FILE
+    while read FILE
     do
-      babel_file="$(dirname $FILE)/$(basename $FILE .js).babel.js"
-      if [[ ! -f "$babel_file" ]]; then
+      babel="$(dirname $FILE)/$(basename $FILE .js).babel.js"
+      if [[ ! -f "$babel" ]]; then
         echo $FILE
       fi
-    done < <($0 all_js_files)
+    done < <( find ./Public/ ./specs/ -type f -regex ".*\.js\$" -and -not -regex ".*/vendor/.*" -printf "%p\n" )
+    ;;
+
+  "json_files")
+    find ./Public/ ./specs/ -type f -regex ".*\.json\$" -and -not -regex ".*/vendor/.*" -printf "%p\n" )
     ;;
 
   "typescript_files")
@@ -109,19 +114,17 @@ case "$action" in
       -printf "%p\n"
     ;;
 
+  "validate_json")
+    while read -r $FILE
+    do
+      $0 validate_js $FILE
+    done < <(json_files)
+    ;;
+
   "validate_js")
-    # ===  $ bin/megauni.js  validate_js
     # ===  $ bin/megauni.js  validate_js   file/path/file.js
 
     cmd="js_setup jshint! "
-    if [[ -z "$@" ]]; then # === validate all .js files
-      while read  file
-      do
-        $cmd "$file" || { exit_stat=$?; echo -e "=== jshint ${RED}failed${RESET_COLOR}: $file" 1>&2; exit $exit_stat; }
-      done < <($0 js_files)
-      exit 0
-    fi # ================================================
-
     file="$1"
     shift
     if [[ "$file" =~ "bin/" ]]; then
@@ -218,6 +221,14 @@ case "$action" in
   "compile_babel")
     # ===  $ bin/megauni.js  compile_babel   file.js
     # ==> Creates: file.babel.js, file.babel.js.map
+
+    if [[ -z "$@" ]]; then
+      while read -r FILE
+      do
+        $0 compile_babel $FILE
+      done < <(js_files)
+    fi
+
     orig="$1"
     shift
 
@@ -247,9 +258,11 @@ case "$action" in
 
     $0 validate_js $babel
 
-    mv -f "$babel"  "$dir/${name}.babel.js"
-    mv -f "$map"    "$dir/${name}.babel.js.map"
-    rm -rf /tmp/tmp.*.babel.js
+    if [[ -n "$IS_DEPLOY" ]]; then
+      mv -f "$babel"  "$dir/${name}.babel.js"
+      mv -f "$map"    "$dir/${name}.babel.js.map"
+    fi
+    rm -r /tmp/tmp.*.babel.js
     ;;
 
 
@@ -293,13 +306,11 @@ case "$action" in
 
   "render")
     # === $ render
-    # === * Compiles TypeScript
-    # === * Validates .js files
-    # === * Renders all stylus files.
-    # === * Renders all mustache templates.
+    export IS_DEPLOY="yes"
     $0 compile_stylus
     $0 compile_mustache
-    $0 validate_js
+    $0 compile_babel
+    $0 validate_json
     ;;
 
   "watch")
