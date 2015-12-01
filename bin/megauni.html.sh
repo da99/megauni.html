@@ -13,6 +13,7 @@ set -u -e -o pipefail
 
 eval "$(bash_setup show_err_line_trap)"
 
+
 layout="Public/applets/MUE/layout.mustache"
 error_files=(
   ./Public/403.html
@@ -215,33 +216,40 @@ case "$action" in
 
 
   "compile_babel")
-    # ===  $ bin/megauni.js  compile_babel   /tmp/file.js    # ==> --out-file /tmp/file.es3.js
-    # ===  $ bin/megauni.js  compile_babel   /tmp/file.path  path/to/output.js
-    # === Runs it through Babel.
-    file="$1"
+    # ===  $ bin/megauni.js  compile_babel   file.js
+    # ==> Creates: file.babel.js, file.babel.js.map
+    orig="$1"
     shift
 
-    if [[ "$file" == *.babel.js ]]; then
-      echo -e "=== ${BOLD_WHITE}Skipping Babel compile${RESET_COLOR}: $file"
+    if [[ "$orig" == *.babel.js ]]; then
+      echo -e "=== ${BOLD_WHITE}Skipping Babel compile${RESET_COLOR}: $orig"
       exit 0
     fi
 
-    if [[ -n "$@" ]]; then
-      new_file="$1"
-      shift
-    else
-      new_file="$(dirname "$file")/$(basename "$file" .js).babel.js"
-    fi
+    dir="$(dirname $orig)"
+    name="$(basename $orig .js)"
 
-    echo -n "=== Babel: $file => $new_file: "
-    babel -s true --out-file $new_file $file || {                      \
-      exit_stat=$?;                                                    \
-      echo -e "=== Babel ${RED}failed${RESET_COLOR}: $file" 1>&2; \
-      exit $exit_stat;                                                 \
+    base="$(mktemp -d /tmp/tmp.XXXXXXXXXX.babel.js )/${name}"
+    temp="${base}.js"
+    babel="${base}.babel.js"
+    map="${base}.babel.js.map"
+
+    cp -f "$orig" $temp
+
+    echo -n "=== Babel $orig: "
+    babel -s true --out-file $babel $temp || {                    \
+      exit_stat=$?;                                               \
+      echo -e "=== Babel ${RED}failed${RESET_COLOR}: $orig" 1>&2; \
+      exit $exit_stat;                                            \
     }
 
     echo "${GREEN}Passed${RESET_COLOR}"
-    $0 validate_js $new_file
+
+    $0 validate_js $babel
+
+    mv -f "$babel"  "$dir/${name}.babel.js"
+    mv -f "$map"    "$dir/${name}.babel.js.map"
+    rm -rf /tmp/tmp.*.babel.js
     ;;
 
 
