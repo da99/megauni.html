@@ -50,7 +50,11 @@ Applet = (function () {
     },
 
     funcs : function (mod, ...raw_names) {
+      if (_.isString(mod))
+        return A.funcs(A, [mod].concat(raw_names));
+
       return _(raw_names)
+      .flattenDeep()
       .map( A.space_split )
       .flattenDeep()
       .map( A.comma_split )
@@ -215,9 +219,6 @@ Applet = (function () {
       if (o.name === 'this position')
         return 'top';
 
-      if (o.name !== 'dom')
-        return;
-
       var scripts = Applet.find(this_name, 'script[type^="text/mustache"]', o.target);
 
       if (scripts.length < 1)
@@ -254,7 +255,8 @@ Applet = (function () {
           pos            : pos
         };
 
-        o.applet.new_func(
+        A.applet.push(
+          o.applet,
           function (o, data) {
             if (o.name !== 'data' || !_.isPlainObject(data[meta.key]))
               return;
@@ -272,11 +274,11 @@ Applet = (function () {
 
             meta.elements = html;
             o.applet.run({
-              name   : 'dom',
+              name   : o.name,
               target : html
             });
           }
-        ); // === new_func
+        ); // === push
 
       });
 
@@ -285,9 +287,6 @@ Applet = (function () {
 
     // === show_if ====================
     show_if : function (o) {
-
-      if (o.name !== 'dom') return;
-
       var targets    = Applet.find('show_if', '*[data-show_if]', o.target);
 
       _.each(targets, function (raw_node) {
@@ -300,7 +299,8 @@ Applet = (function () {
 
         var the_id  = Applet.dom_id(node);
 
-        o.applet.new_func(
+        A.applet.push(
+          o.applet,
           function (o, data) {
             if (o.name !== 'data') return;
 
@@ -323,8 +323,6 @@ Applet = (function () {
 
     // === hide_if ====================
     hide_if : function (o) {
-      if (o.name !== 'dom') return;
-
       var targets = Applet.find('hide_if', '*[data-hide_if]', o.target);
 
       _.each(targets, function (raw_node) {
@@ -337,7 +335,8 @@ Applet = (function () {
 
         var id  = Applet.dom_id(node);
 
-        o.applet.new_func(
+        A.applet.push(
+          o.applet,
           function (o, data) {
             if (o.name !== 'data') return;
 
@@ -350,7 +349,7 @@ Applet = (function () {
               return;
             } // === switch value
           }
-        ); // === new_func
+        ); // === push
 
       }); // === each target
 
@@ -428,10 +427,6 @@ Applet = (function () {
         return;
       }
 
-      if (o.name !== 'dom')
-        return;
-
-
       if (!o.this_func.submit) {
         o.this_func.submit = function (a) {
           return function (e) {
@@ -471,12 +466,31 @@ Applet = (function () {
       } // === while
     }, // === funcs: form
 
-    applet : {
+    applet: {
+
       new: function () {
-        return { funcs: [], data_cache: {} };
+        var _the_app_ = { funcs: [], data_cache: {} };
+
+        var fin = {_the_app_: _the_app_};
+        _.forOwn( A.applet, function (func, name) {
+          if (!_.isFunction(func))
+            return;
+          fin[name] = function () {
+
+            fin._the_app_ = func.apply(
+              null,
+              [_the_app_].concat(_.toArray(arguments))
+            );
+
+            return fin;
+          };
+        }); // === forOwn
+
+        fin.value = function () { return _the_app_; };
+        return fin;
       },
-      config_for_func : function (f) {
-        var i = this;
+
+      config_for_func : function (i, f) {
 
         if (!i.func_ids) {
           i.func_id_to_config = {}; // === used by callbacks to store info.
@@ -500,20 +514,17 @@ Applet = (function () {
       // .run(name, 'str', {...})
       // .run({name: 'str', ... more meta data}, ...data args)
       //
-      run : function () {
+      run: function (...raw_args) {
 
-        var raw_args = _.toArray(arguments);
-
-        var first = raw_args[0];
-        var args  = _.slice(raw_args, 1);
-
-        var instance = this;
+        var instance = raw_args.shift();
+        var first    = raw_args.shift();
+        var args     = raw_args;
 
         var meta, name;
 
         if (_.isPlainObject(first)) {
-          meta = _.extend(first, {
-            name   : Applet.standard_name(first.name),
+          meta = _.extend({}, first, {
+            name   : A.standard_name(first.name),
             applet : instance
           });
           name = first.name;
@@ -534,7 +545,7 @@ Applet = (function () {
 
         while (instance.funcs[i]) {
           f                = instance.funcs[i];
-          meta.this_config = instance.config_for_func(f);
+          meta.this_config = A.applet.config_for_func(instance, f);
           meta.this_func   = f;
           meta.data_cache  = instance.data_cache;
 
@@ -545,9 +556,20 @@ Applet = (function () {
         return instance;
       }, // === func
 
-      new_func : function () {
-        var arr = _.flatten(_.toArray(arguments));
-        var i   = this;
+      push_for: function (app, raw_name, ...raw_funcs) {
+        var name = A.standard_name(raw_name);
+        _.each(_.flattenDeep(raw_funcs), function (f) {
+          A.applet.push(app, function (meta, ...args) {
+            if (meta.name !== name)
+              return;
+            return f.apply(null, [meta].concat(args));
+          });
+        });
+        return app;
+      },
+
+      push: function (i, ...raw_arr) {
+        var arr = _.flattenDeep(raw_arr);
 
         _.each(arr, function (f) {
 
@@ -560,7 +582,7 @@ Applet = (function () {
             i.funcs.push(f);
         });
 
-        return this;
+        return i;
       }
 
     }, // === applet { ... }

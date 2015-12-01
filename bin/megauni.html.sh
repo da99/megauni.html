@@ -247,7 +247,7 @@ case "$action" in
 
     cp -f "$orig" $temp
 
-    echo -n "=== Babel $orig: "
+    echo -e -n "\n=== Babel $orig: "
     babel -s true --out-file $babel $temp || {                    \
       exit_stat=$?;                                               \
       echo -e "=== Babel ${RED}failed${RESET_COLOR}: $orig" 1>&2; \
@@ -258,10 +258,8 @@ case "$action" in
 
     $0 validate_js $babel
 
-    if [[ -n "$IS_DEPLOY" ]]; then
-      mv -f "$babel"  "$dir/${name}.babel.js"
-      mv -f "$map"    "$dir/${name}.babel.js.map"
-    fi
+    mv -f "$babel"  "$dir/${name}.babel.js"
+    mv -f "$map"    "$dir/${name}.babel.js.map"
     rm -r /tmp/tmp.*.babel.js
     ;;
 
@@ -330,7 +328,6 @@ case "$action" in
       path="${dir}$(echo "$CHANGE" | cut -d' ' -f 3)"
       file="$(basename $path)"
 
-      echo -e "\n=== $CHANGE (${path})"
 
       if [[ "$path" == "$0" ]]; then
         echo "=== ${GREEN}Reloading${RESET_COLOR}: $0 ${orig_args[@]}"
@@ -341,6 +338,7 @@ case "$action" in
         echo "=== Validating in 2s to let gvim detect change: $path "
         sleep 2s
         $0 validate_html $path
+        continue
       fi
 
       if [[ "$file" == *.mustache ]]; then
@@ -349,23 +347,35 @@ case "$action" in
         else
           $0 compile_mustache "$path"
         fi
+        continue
       fi
 
       if [[ "$file" == *.styl ]]; then
         $0 compile_stylus "$path"
+        continue
       fi
 
       if [[ "$path" == *.ts ]]; then
         $0 compile_typescript $path || :
+        continue
       fi
 
       if [[ "$path" == *.json ]]; then
         $0 validate_js $path || :
+        continue
       fi
 
       if [[ "$path" == *.js ]]; then
         $0 compile_babel $path || :
+        continue
       fi
+
+      if [[ "$path" == *.babel.js.map ]]; then
+        echo -e "=== $CHANGE (${path})"
+        continue
+      fi
+
+      echo -e "\n=== $CHANGE (${path})"
     done < <(
      inotifywait \
        --quiet   \

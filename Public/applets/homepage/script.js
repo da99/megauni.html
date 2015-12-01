@@ -2,23 +2,20 @@
 /* global Megauni, Applet */
 "use strict";
 
-var APP;
+var A, APP;
 
-$(function () {
+A = Applet;
+APP = A
+.applet.new()
+.push_for('dom', A.funcs('show_if hide_if'))
+.push(A.funcs(Megauni, 'on_respond_ok'))
+.run('dom')
+.run(
+  'data',
+  {
+    "page_loaded?" : true,
+    "logged_in?" : false
+  }
+);
 
-  APP = new Applet(
-      Applet.funcs('show_if hide_if ajax'),
-      Megauni.applet_funcs('on_respond_ok')
-  );
-
-  APP.run('dom');
-  APP.run(
-    'data',
-    {
-      "page_loaded?" : true,
-      "logged_in?" : false
-    }
-  );
-
-}); // === $(func) scope
 
