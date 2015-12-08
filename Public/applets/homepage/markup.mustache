@@ -16,13 +16,13 @@
       Loading...
     </div>
 
-    <script type="text/mustache" data-render_if="logged_in?">
+    <mustache data-render_if="logged_in?">
       <div class="hidden block" data-show_if="logged_in?">
         <p>You are logged in.</p>
       </div>
-    </script><!-- if logged_in? -->
+    </mustache><!-- if logged_in? -->
 
-    <script type="text/mustache" data-render_if="!logged_in?">
+    <mustache data-render_if="!logged_in?">
 
       <div class="block form">
         <h3>Log-In</h3>
@@ -38,13 +38,13 @@
               <div class="field screen_name"><label>Screen name:</label><input name="screen_name" type="text" value="" /></div>
               <div class="field passphrase"><label>Pass phrase:</label><input name="pswd" type="password" value="" /></div>
 
-              <script type="text/mustache" data-render_if="logged_in?">
+              <mustache data-render_if="logged_in?">
                 <div class="success_msg">You are now logged in. Loading...</div>
-              </script>
+              </mustache>
 
-              <script type="text/mustache" data-render_if="error /sign-in">
+              <mustache data-render_if="error /sign-in">
                 <div class="error_msg">{{msg}}</div>
-              </script>
+              </mustache>
 
               <div class="field buttons"><button class="submit">Log-In</button></div>
             </div>
@@ -83,13 +83,13 @@
                 <input name="confirm_pass_word" type="password" value="" />
               </div>
 
-              <script type="text/mustache" data-render_if="logged_in?">
+              <mustache data-render_if="logged_in?">
                 <div class="success_msg">You account has been created. Loading...</div>
-              </script>
+              </mustache>
 
-              <script type="text/mustache" data-render_if="error /user">
+              <mustache data-render_if="error /user">
                 <div class="error_msg">{{msg}}</div>
-              </script>
+              </mustache>
 
               <div class="buttons"><button class="submit">Create Account</button></div>
             </div>
@@ -97,7 +97,7 @@
         </div>
       </div>
 
-    </script><!-- text/mustache !logged_in? -->
+    </mustache><!-- text/mustache !logged_in? -->
 
 
     <div class="block" id="intro">

@@ -237,6 +237,12 @@ case "$action" in
       exit 0
     fi
 
+    if [[  "$(readlink --canonicalize $orig)" == "$(readlink --canonicalize ./render.js)" ]]; then
+      $0 validate_js $orig
+      exit 0
+    fi
+
+
     dir="$(dirname $orig)"
     name="$(basename $orig .js)"
 

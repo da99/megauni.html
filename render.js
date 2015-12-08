@@ -127,17 +127,19 @@ co(function *() {
 
       var q = $.load(
         final_html, {
-          decodeEntities: false
-          // === Prevents &apos; to be used. Cheerio sets it to true to fix some other bug.
+          decodeEntities: false // === Prevents &apos; to be used.
+                                //     Cheerio sets it to true to fix some other bug.
         }
       );
 
-      _.each(q('script[type]'), function (node) {
-        if (node.attribs.type.match(/javascript/i))
-          return;
+      let mustaches = q('mustache');
 
-        $(node).text(he.encode($(node).html() || ''));
+      _.each(mustaches, function (raw) {
+        raw.name = "script";
+        $(raw).attr('type', "text/mustache");
+        $(raw).text(he.encode($(raw).html() || ''));
       });
+
 
       if (meta.attrs['PUBLIC FILE']) {
         console.log('Public' + meta.attrs['PUBLIC FILE']);
