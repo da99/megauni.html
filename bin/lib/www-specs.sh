@@ -14,6 +14,10 @@ specs () {
   bash_setup BOLD "--- '200 OK' on {{/}}: " "-n"
   curl --head --silent "$URL/" | grep -P "^HTTP/[\d\.]+ 200 OK"
 
+  bash_setup BOLD "--- Renders {{/}} as {{/index.html}}: " "-n"
+  [[ "$(curl --silent "$URL/")" == "$(cat Public/index.html)" ]] && echo "equal"
+
+
   file="$(find Public -type f -iname "*.js" -print -quit | cut -d'/' -f2- )"
   bash_setup BOLD "--- '200 OK' on JS files (eg {{$file}}): " "-n"
   curl --head --silent "$URL/$file" | grep -P "^HTTP/[\d\.]+ 200 OK"
