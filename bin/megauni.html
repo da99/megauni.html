@@ -415,7 +415,7 @@ case "$action" in
       exit 0
     fi
 
-    echo "Unknown action: $action" 1>&2
+    bash_setup RED "!!! Unknown action: {{$action}}"
     exit 1
     ;;
 

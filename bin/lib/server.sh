@@ -12,11 +12,11 @@ server () {
 
       if ! $0 server pid >/dev/null; then
         $CMD
+        bash_setup BOLD "=== NGINX has {{started}}."
         return 0
       fi
 
-      bash_setup BOLD "=== Restarting {{NGINX}}"
-      server reload
+      $0 server reload
       ;;
 
     pid)
@@ -32,7 +32,13 @@ server () {
       ;;
 
     reload)
+      if ! $0 server pid >/dev/null; then
+        $0 server start
+        return 0
+      fi
+
       $CMD  -s reload
+      bash_setup BOLD "=== NGINX .conf has been {{reloaded}}."
       ;;
 
     quit)
