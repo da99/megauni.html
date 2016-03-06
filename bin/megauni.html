@@ -44,6 +44,7 @@ BG_RED='\e[1;31m'
 case "$action" in
 
   "help"|"--help")
+    bash_setup BOLD "==== megauni.html  {{lua-bin-cmd}}  myargs"
     bash_setup print_help $0
     exit 0
     ;;
@@ -416,6 +417,11 @@ case "$action" in
 
     if [[ -f "$file"  ]]; then
       $file "$@"
+      exit 0
+    fi
+
+    if type "$1"; then
+      $@
       exit 0
     fi
 
