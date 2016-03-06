@@ -9,12 +9,16 @@ IS_DEPLOY="$IS_DEPLOY"
 orig_args=("$@")
 action="$1"
 THIS_DIR="$(bash_setup dirname_of_bin "$0")"
+LUAJIT="luajit"
 shift
 
 set -u -e -o pipefail
 
 eval "$(bash_setup show_err_line_trap)"
 
+if [[ -s luajit/bin/luarocks ]]; then
+  eval $(luajit/bin/luarocks path --bin)
+fi
 
 layout="Public/applets/MUE/layout.mustache"
 error_files=(
