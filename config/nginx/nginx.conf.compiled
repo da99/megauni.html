@@ -1,0 +1,29 @@
+worker_processes  1;
+error_log stderr notice;
+daemon off;
+env LAPIS_ENVIRONMENT;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include mime.types;
+
+    server {
+        listen 8080;
+        lua_code_cache off;
+
+        root /apps/okdoki/Client/;
+
+#location / {
+#          try_files $uri @lua;
+#        }
+
+        location / {
+          default_type text/html;
+          set $_url "";
+          content_by_lua_file "web.lua";
+        }
+    }
+}
