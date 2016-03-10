@@ -5,12 +5,12 @@
 
 # Array is used.
 # Inspired from: http://stackoverflow.com/a/3811396/841803
-IS_DEPLOY="$IS_DEPLOY"
 orig_args=("$@")
-action="$1"
+action="$1"; shift
+
+IS_DEPLOY="$IS_DEPLOY"
 THIS_DIR="$(bash_setup dirname_of_bin "$0")"
 LUAJIT="$THIS_DIR/luajit"
-shift
 
 set -u -e -o pipefail
 
