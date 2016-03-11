@@ -10,12 +10,14 @@ action="$1"; shift
 
 IS_DEPLOY="$IS_DEPLOY"
 THIS_DIR="$(bash_setup dirname_of_bin "$0")"
-LUAJIT="$THIS_DIR/luajit"
+PROGS="$THIS_DIR/progs"
+LUAJIT="$THIS_DIR/progs"
 
 set -u -e -o pipefail
 
 eval "$(bash_setup show_err_line_trap)"
 
+export PATH="$PWD/progs/bin:$PATH"
 if [[ -s $LUAJIT/bin/luarocks ]]; then
   eval $($LUAJIT/bin/luarocks path --bin)
 fi
