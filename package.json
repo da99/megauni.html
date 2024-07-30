@@ -20,7 +20,7 @@
     "koa-logger": "^1.2.2",
     "koa-router": "^5.1.2",
     "koa-static": "^1.4.9",
-    "lodash": "^3.10.0",
+    "lodash": "*",
     "stylus": "^0.51.1",
     "thunkify": "^2.1.2",
     "typescript": "^1.6.2",
